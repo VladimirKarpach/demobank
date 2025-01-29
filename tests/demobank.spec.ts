@@ -1,4 +1,4 @@
-import {test} from '@playwright/test'
+import {test, expect} from '@playwright/test'
 import { describe } from 'node:test';
 
 
@@ -9,6 +9,10 @@ test.describe('Navigation by tabs', () => {
         await page.locator('#login_id').fill('TestUser');
         await page.locator('#login_password').fill('TestPass');
         await page.getByRole('button').click();
+    })
+
+    test('Navigate to the "mój pulpit" page', async({page}) => {
+        await page.locator('#pulpit_btn').click();
     })
 
     test('Navigate to the "mój pulpit -> szybki przelew" page', async({page}) => {
