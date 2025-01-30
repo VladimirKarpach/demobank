@@ -184,3 +184,12 @@ test.describe('Navigation by tabs', () => {
         await expect(page.locator('.login-highlight')).toHaveText('Strona w budowie!');
     })
 })
+
+test('Logout', async({page}) => {
+    await page.goto('https://demo-bank.vercel.app/');
+        await page.locator('#login_id').fill(correctUserId);
+        await page.locator('#login_password').fill(correctPassword);
+        await page.getByRole('button').click();
+        await page.getByText('Wyloguj').click();
+        await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');
+})
