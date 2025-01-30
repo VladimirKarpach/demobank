@@ -12,7 +12,8 @@ const correctUserId = 'TestUser',
 let idTooltipText = 'Wprowadź identyfikator otrzymany z banku lub alias - dodatkowy własny identyfikator, samodzielnie zdefiniowany w Demobank online.',
     passwordTooltipText = 'Wprowadź swoje hasło. Sprawdź, czy przycisk Caps Lock jest włączony. Uwaga: 3-krotne wprowadzenie błędnego hasła spowoduje zablokowanie dostępu do systemu.',
     szybkiPrzelewTooltipText = 'widżet umożliwia zlecenie przelewu zwykłego do jednego ze zdefiniowanych odbiorców',
-    szybkiPrzelewDropdownOptions = ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott'];
+    szybkiPrzelewDropdownOptions = ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott'],
+    doladoawaniaDropboxOptions = ['wybierz telefon do doładowania', '500 xxx xxx', '502 xxx xxx', '503 xxx xxx', '504 xxx xxx'];
 
 const signIn = async({page}) => {
     await page.goto('https://demo-bank.vercel.app/');
@@ -304,6 +305,82 @@ test.describe('Mój pulpit page', () => {
             expect(await page.isVisible('[role="dialog"]')).toBe(true);
             await page.locator('[role="dialog"]').getByRole('button').click();
             expect(await page.isVisible('[role="dialog"]')).toBe(false);
+        })
+    })
+
+    test.describe('Phone top-up', () => {
+        test('Check header', async({page}) => {
+            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
+            const headerText = await box.locator('.wborder').textContent();
+            expect(headerText).toEqual('doładowanie telefonu');
+        })
+
+        test('All fields are required', async({page}) => {
+            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
+            const toField = box.locator('.form-row', {hasText: 'wybierz'});
+            const amountField = box.locator('.form-row', {hasText: 'kwota'});
+            const verificationCheckBox = box.locator('.form-row', {hasText: 'zapozna'});
+
+            await box.getByRole('button').click();
+
+            // error message appears
+            await expect(toField.locator('.error')).toHaveText('pole wymagane');
+            await expect(amountField.locator('.error')).toHaveText('pole wymagane');
+            await expect(verificationCheckBox.locator('.error')).toHaveText('pole wymagane');
+
+            // error message disappears
+            await toField.locator('select').selectOption({index: 1});
+            await amountField.getByRole('textbox').fill('100');
+            await verificationCheckBox.getByRole('checkbox').check();
+
+            await expect(toField.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-28 grid-mt-48 grid-mt-space-0 field is-valid');
+            await expect(amountField.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-24 grid-mt-38 grid-mt-space-0 field is-valid');
+            await expect(verificationCheckBox.locator('.grid-48')).toHaveClass('grid-48 grid-mt-48 field checkbox-inline is-valid');
+        })
+
+        test('Check verification checkbox', async({page}) => {
+            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
+            const verificationCheckBox = box.locator('.form-row', {hasText: 'zapozna'});
+
+            await expect(verificationCheckBox.getByRole('checkbox')).not.toBeChecked();
+            await verificationCheckBox.getByRole('checkbox').check();
+            await expect(verificationCheckBox.getByRole('checkbox')).toBeChecked();
+        })
+
+        test('Check dropdown options 1', async({page}) => {
+            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
+            const toField = box.locator('.form-row', {hasText: 'wybierz'});
+            await toField.click();
+            const numberOfOptions = await toField.getByRole('option').count();
+
+            for (let i = 0; i < numberOfOptions; i++){
+                const optionText = await toField.getByRole('option').nth(i).textContent();
+                expect(optionText).toContain(doladoawaniaDropboxOptions[i])
+            }
+        })
+
+        test('Correct top-up data was sent', async({page}) => {
+
+        })
+
+        test('Top-up detaild window can be closed', async({page}) => {
+
+        })
+
+        test('Tooltip apears if 500, 502, 503 numbers selected', async({page}) => {
+
+        })
+
+        test('Minimum top-up sum is 5PLN', async({page}) => {
+
+        })
+
+        test('Select for the Amount appers if 504 number selected', async({page}) => {
+
+        })
+
+        test('Check options at the Amout dropdown', async({page}) => {
+
         })
     })
 })
