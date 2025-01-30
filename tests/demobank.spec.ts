@@ -1,5 +1,8 @@
 import {test, expect} from '@playwright/test'
+import exp from 'constants';
+import { sign } from 'crypto';
 import { describe } from 'node:test';
+import { text } from 'stream/consumers';
 
 const correctUserId = 'TestUser',
       correctPassword = 'TestPass',
@@ -7,7 +10,16 @@ const correctUserId = 'TestUser',
       incorrectPassword = 'Pass123';
 
 let idTooltipText = 'Wprowadź identyfikator otrzymany z banku lub alias - dodatkowy własny identyfikator, samodzielnie zdefiniowany w Demobank online.',
-    passwordTooltipText = 'Wprowadź swoje hasło. Sprawdź, czy przycisk Caps Lock jest włączony. Uwaga: 3-krotne wprowadzenie błędnego hasła spowoduje zablokowanie dostępu do systemu.';
+    passwordTooltipText = 'Wprowadź swoje hasło. Sprawdź, czy przycisk Caps Lock jest włączony. Uwaga: 3-krotne wprowadzenie błędnego hasła spowoduje zablokowanie dostępu do systemu.',
+    szybkiPrzelewTooltipText = 'widżet umożliwia zlecenie przelewu zwykłego do jednego ze zdefiniowanych odbiorców',
+    szybkiPrzelewDropdownOptions = ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott'];
+
+const signIn = async({page}) => {
+    await page.goto('https://demo-bank.vercel.app/');
+    await page.locator('#login_id').fill(correctUserId);
+    await page.locator('#login_password').fill(correctPassword);
+    await page.getByRole('button').click();
+}
 
 test.describe('Login Page', () => {
 
@@ -120,10 +132,7 @@ test.describe('Login Page', () => {
 
 test.describe('Navigation by tabs', () => {
     test.beforeEach(async({page}) => {
-        await page.goto('https://demo-bank.vercel.app/');
-        await page.locator('#login_id').fill(correctUserId);
-        await page.locator('#login_password').fill(correctPassword);
-        await page.getByRole('button').click();
+        signIn({page});
     })
 
     test('Navigate to the "mój pulpit" page', async({page}) => {
@@ -192,4 +201,109 @@ test('Logout', async({page}) => {
         await page.getByRole('button').click();
         await page.getByText('Wyloguj').click();
         await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');
+})
+
+test.describe('Mój pulpit page', () => {
+    test.beforeEach(async({page}) => {
+        signIn({page})
+    })
+
+    test.describe('Quick transfer', () => {
+        const dropbox = 
+
+        test('Check header', async({page}) => {
+          const headerText = await page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.wborder').textContent()
+          expect(headerText).toEqual('szybki przelew');
+        })
+
+        test('Check tooltip', async({page}) => {
+            const questionMarkButton = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('i');
+            await questionMarkButton.hover();
+            await expect(questionMarkButton).toHaveAttribute('aria-describedby');
+            await expect(questionMarkButton).toHaveText(szybkiPrzelewTooltipText);  
+        })
+
+        test('All fields are required', async({page}) => {
+            const dropbox = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.form-row', {hasText: 'do'});
+            const amounInput = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.form-row', {hasText: 'kwota'});
+            const titleInput = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.form-row', {hasText: 'tytu'});
+
+            await page.locator('.box-white', {hasText: 'szybki przelew'}).getByRole('button').click();
+            
+            await expect(dropbox.locator('.error')).toHaveText('pole wymagane');
+            await expect(amounInput.locator('.error')).toHaveText('pole wymagane');
+            await expect(titleInput.locator('.error')).toHaveText('pole wymagane');
+            
+            await dropbox.locator('select').selectOption({index: 1});
+            await page.getByText('tytu').click();
+            await expect(dropbox.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-28 grid-mt-48 grid-mt-space-0 field is-valid');
+
+            await amounInput.getByRole('textbox').fill('100');
+            await page.getByText('tytu').click();
+            await expect(amounInput.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-24 grid-mt-42 grid-mt-space-0 field is-valid');
+            
+            await titleInput.getByRole('textbox').fill('Transfer title');
+            await page.getByText('tytu').click();
+            await expect(titleInput.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-28 grid-mt-48 grid-mt-space-0 field is-valid');
+        })
+
+        test('Check dropdown options', async({page}) => {
+            const dropbox = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('#widget_1_transfer_receiver');
+            await dropbox.click();
+            const dropdown = dropbox.getByRole('option');
+            const numberOfOptions = await dropdown.count();
+            for (let i = 0; i < numberOfOptions; i++){
+                //await page.locator('.box-white', {hasText: 'szybki przelew'}).getByRole('button').click()
+
+                const optionText = await dropdown.nth(i).textContent();
+                expect(optionText).toEqual(szybkiPrzelewDropdownOptions[i]);
+            }
+        })
+
+        test('Correct transfer data was sent', async({page}) => {
+            const box = page.locator('.box-white', {hasText: 'szybki przelew'});
+            const dropbox = box.locator('.form-row', {hasText: 'do'});
+            const amounInput = box.locator('.form-row', {hasText: 'kwota'});
+            const titleInput = box.locator('.form-row', {hasText: 'tytu'});
+            let dropdownOprion = 1;
+            let transferAmount = '100';
+            let transferTitle = 'Transfer Title';
+            let transferReceiver = await dropbox.locator('select').locator('option').nth(dropdownOprion).textContent();
+
+            // send transfer
+            await dropbox.locator('select').selectOption({index: dropdownOprion});
+            await amounInput.getByRole('textbox').fill(transferAmount);
+            await titleInput.getByRole('textbox').fill(transferTitle);
+            await box.getByRole('button').click();
+
+            // check tranfer details
+
+            await expect(page.locator('#ui-id-1')).toHaveText('Przelew wykonany');
+            await expect(page.locator('[class="hide ui-dialog-content ui-widget-content"]')).toContainText(`Odbiorca:  ${transferReceiver}`);
+            await expect(page.locator('[class="hide ui-dialog-content ui-widget-content"]')).toContainText(`Kwota: ${transferAmount},00PLN`);
+            await expect(page.locator('[class="hide ui-dialog-content ui-widget-content"]')).toContainText(`Nazwa: ${transferTitle}`);
+        })
+
+        test('Transfer details window can be closed', async({page}) => {
+            const box = page.locator('.box-white', {hasText: 'szybki przelew'});
+            const dropbox = box.locator('.form-row', {hasText: 'do'});
+            const amounInput = box.locator('.form-row', {hasText: 'kwota'});
+            const titleInput = box.locator('.form-row', {hasText: 'tytu'});
+            let dropdownOprion = 1;
+            let transferAmount = '100';
+            let transferTitle = 'Transfer Title';
+            let transferReceiver = await dropbox.locator('select').locator('option').nth(dropdownOprion).textContent();
+
+            // send transfer
+            await dropbox.locator('select').selectOption({index: dropdownOprion});
+            await amounInput.getByRole('textbox').fill(transferAmount);
+            await titleInput.getByRole('textbox').fill(transferTitle);
+            await box.getByRole('button').click();
+
+            // close the window
+            expect(await page.isVisible('[role="dialog"]')).toBe(true);
+            await page.locator('[role="dialog"]').getByRole('button').click();
+            expect(await page.isVisible('[role="dialog"]')).toBe(false);
+        })
+    })
 })
