@@ -103,6 +103,19 @@ test.describe('Login Page', () => {
         await expect(page.locator('#login_password_container i.tooltip')).toHaveText(passwordTooltipText);
     })
 
+    test('Redirection to the "More about security" page', async({page}) => {
+        await expect(page.getByText('o bezpiecze')).toBeEnabled();
+        await page.getByText('o bezpiecze').click();
+        await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
+    })
+
+    test('Rediresction from "More about security" to the "Login" page', async({page}) => {
+        await page.getByText('o bezpiecze').click();
+        await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
+        await page.getByText('do strony logowania').click();
+        await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');
+    })
+
 })
 
 test.describe('Navigation by tabs', () => {
@@ -171,4 +184,3 @@ test.describe('Navigation by tabs', () => {
         await expect(page.locator('.login-highlight')).toHaveText('Strona w budowie!');
     })
 })
-
