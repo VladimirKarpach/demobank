@@ -251,14 +251,8 @@ test.describe('Mój pulpit page', () => {
         test('Check dropdown options', async({page}) => {
             const dropbox = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('#widget_1_transfer_receiver');
             await dropbox.click();
-            const dropdown = dropbox.getByRole('option');
-            const numberOfOptions = await dropdown.count();
-            for (let i = 0; i < numberOfOptions; i++){
-                //await page.locator('.box-white', {hasText: 'szybki przelew'}).getByRole('button').click()
-
-                const optionText = await dropdown.nth(i).textContent();
-                expect(optionText).toEqual(szybkiPrzelewDropdownOptions[i]);
-            }
+            const optionsList = dropbox.getByRole('option');
+            await expect(optionsList).toHaveText(szybkiPrzelewDropdownOptions);
         })
 
         test('Correct transfer data was sent', async({page}) => {
@@ -347,16 +341,12 @@ test.describe('Mój pulpit page', () => {
             await expect(verificationCheckBox.getByRole('checkbox')).toBeChecked();
         })
 
-        test('Check dropdown options 1', async({page}) => {
+        test('Check dropdown options', async({page}) => {
             const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
             const toField = box.locator('.form-row', {hasText: 'wybierz'});
             await toField.click();
-            const numberOfOptions = await toField.getByRole('option').count();
-
-            for (let i = 0; i < numberOfOptions; i++){
-                const optionText = await toField.getByRole('option').nth(i).textContent();
-                expect(optionText).toContain(doladoawaniaDropboxOptions[i])
-            }
+            const optionsList = toField.getByRole('option');
+            await expect(optionsList).toHaveText(doladoawaniaDropboxOptions)
         })
 
         test('Correct top-up data was sent', async({page}) => {
