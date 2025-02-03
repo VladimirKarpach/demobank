@@ -18,14 +18,6 @@ let idTooltipText = 'Wprowadź identyfikator otrzymany z banku lub alias - dodat
     szybkiPrzelewDropdownOptions = ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott'],
     doladoawaniaDropboxOptions = ['wybierz telefon do doładowania', '500 xxx xxx', '502 xxx xxx', '503 xxx xxx', '504 xxx xxx'];
 
-const signIn = async({page}) => {
-    const loginPage = new LoginPage(page)
-    await page.goto('https://demo-bank.vercel.app/');
-    await loginPage.idInputField.fill(correctUserId);
-    await loginPage.passwordInputField.fill(correctPassword);
-    await page.getByRole('button').click();
-}
-
 test.describe('Login Page', () => {
 
     test.beforeEach(async({page}) => {
@@ -219,7 +211,8 @@ test('Logout', async({page}) => {
 
 test.describe('Mój pulpit page', () => {
     test.beforeEach(async({page}) => {
-        signIn({page})
+        const loginPage = new LoginPage(page);
+        loginPage.signIn();
     })
 
     test.describe('Quick transfer', () => {
