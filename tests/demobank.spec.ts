@@ -173,6 +173,14 @@ test.describe('Navigation by tabs', () => {
         const navigateTo = new Navigation(page);
         await navigateTo.raportyPage();
         await navigateTo.checkHeaderText('Raporty')
+
+    })
+
+    test('Navigat to the "Raporty (iFrame)" page', async({page}) => {
+        const navigateTo = new Navigation(page);
+        await navigateTo.raportyIframePage();
+        const frame = page.frameLocator('#main_content iframe')
+        await expect(frame.getByRole('heading').first()).toHaveText('Raporty (iframe)')
     })
 
 

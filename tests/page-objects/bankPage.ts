@@ -11,6 +11,7 @@ export class Navigation {
     kontaOsobisteButton: Locator
     platnosciButton: Locator
     raportyButton: Locator
+    raportyIframeButton: Locator
     generujPrzelewButton: Locator
     wykresyButton: Locator
     tabeleDanychButton: Locator
@@ -27,6 +28,7 @@ export class Navigation {
         this.kontaOsobisteButton = page.locator('#privaccounts_btn')
         this.platnosciButton = page.locator('#payments_btn')
         this.raportyButton = page.locator('#reports_btn')
+        this.raportyIframeButton = page.locator('#reports_iframe_btn')
         this.generujPrzelewButton = page.locator('#user_reports_btn')
         this.wykresyButton = page.locator('#charts_btn')
         this.tabeleDanychButton = page.locator('#tables_btn')
@@ -61,6 +63,10 @@ export class Navigation {
 
     async raportyPage () {
         await this.raportyButton.click();
+    }
+
+    async raportyIframePage () {
+        await this.raportyIframeButton.click();
     }
 
     async generujPrzelewPage () {
