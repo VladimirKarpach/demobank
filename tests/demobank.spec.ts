@@ -5,6 +5,7 @@ import { describe } from 'node:test';
 import { text } from 'stream/consumers';
 import { LoginPage } from './page-objects/loginPage';
 import { Navigation } from './page-objects/bankPage';
+import { log } from 'console';
 
 const correctUserId = 'TestUser',
       correctPassword = 'TestPass',
@@ -18,9 +19,10 @@ let idTooltipText = 'Wprowadź identyfikator otrzymany z banku lub alias - dodat
     doladoawaniaDropboxOptions = ['wybierz telefon do doładowania', '500 xxx xxx', '502 xxx xxx', '503 xxx xxx', '504 xxx xxx'];
 
 const signIn = async({page}) => {
+    const loginPage = new LoginPage(page)
     await page.goto('https://demo-bank.vercel.app/');
-    await page.locator('#login_id').fill(correctUserId);
-    await page.locator('#login_password').fill(correctPassword);
+    await loginPage.idInputField.fill(correctUserId);
+    await loginPage.passwordInputField.fill(correctPassword);
     await page.getByRole('button').click();
 }
 
@@ -32,100 +34,100 @@ test.describe('Login Page', () => {
 
     test('The ID field is required', async({page}) => {
         const loginPage = new LoginPage(page);
-        await page.locator('#login_id').click();
-        await page.locator('#login_password').click();
-        const errorMessage = await page.locator('#error_login_id').textContent();
-        expect(errorMessage).toEqual('pole wymagane');
+        await loginPage.idInputField.click();
+        await loginPage.passwordInputField.click();
+        await loginPage.checkErrorMessage('id', 'pole wymagane');
     })
 
     test('The Password field is required', async({page}) => {
-        await page.locator('#login_password').click();
-        await page.locator('#login_id').click();
-        const errorMessage = await page.locator('#error_login_password').textContent();
-        expect(errorMessage).toEqual('pole wymagane');
+        const loginPage = new LoginPage(page);
+        await loginPage.passwordInputField.click();
+        await loginPage.idInputField.click();
+        await loginPage.checkErrorMessage('password', 'pole wymagane');
     })
 
     test('ID must be 8 characters long', async({page}) => {
-        await page.locator('#login_id').fill(incorrectUserId);
-        await page.getByText('wersja').click();
-        const errorMessage = await page.locator('#error_login_id').textContent();
-        expect(errorMessage).toEqual('identyfikator ma min. 8 znaków');
-        let locator = page.locator('#login_id_container .grid-20');
-        expect(locator).toHaveClass('grid-20 grid-ms-48 grid-space-1 field has-error');
-        await page.locator('#login_id').fill(correctUserId);
-        await page.getByText('wersja').click();
-        locator = page.locator('#login_id_container .grid-20');
-        expect(locator).toHaveClass('grid-20 grid-ms-48 grid-space-1 field is-valid')
+        const loginPage = new LoginPage(page);
+        await loginPage.idInputField.fill(incorrectUserId);
+        await loginPage.signInButton.click({force: true});
+        await loginPage.checkErrorMessage('id', 'identyfikator ma min. 8 znaków')
+        await loginPage.checkFieldHighlight('id', 'has-error')
+
+        await loginPage.idInputField.fill(correctUserId);
+        await loginPage.signInButton.click({force: true});
+        await loginPage.checkFieldHighlight('id', 'is-valid')
     })
 
     test('Password must be 8 characters long', async({page}) => {
-        await page.locator('#login_password').fill(incorrectPassword);
-        await page.getByText('wersja').click();
-        const errorMessage = await page.locator('#error_login_password').textContent();
-        expect(errorMessage).toEqual('hasło ma min. 8 znaków');
-        let locator = page.locator('#login_password_container .grid-20');
-        expect(locator).toHaveClass('grid-20 grid-ms-48 grid-space-1 field has-error');
-        await page.locator('#login_password').fill(correctPassword);
-        await page.getByText('wersja').click();
-        locator = page.locator('#login_password_container .grid-20');
-        expect(locator).toHaveClass('grid-20 grid-ms-48 grid-space-1 field is-valid');
+        const loginPage = new LoginPage(page);
+        await loginPage.passwordInputField.fill(incorrectPassword);
+        await loginPage.signInButton.click({force: true});
+        await loginPage.checkErrorMessage('password', 'hasło ma min. 8 znaków')
+        await loginPage.checkFieldHighlight('password', 'has-error')
+
+        await loginPage.passwordInputField.fill(correctPassword);
+        await loginPage.signInButton.click({force: true});
+        await loginPage.checkFieldHighlight('password', 'is-valid')
     })
 
-    test('Sign In button isn\'t clickable untill all correct data provided', async({page}) => {        
+    test('Sign In button isn\'t clickable untill all correct data provided', async({page}) => {   
+        const loginPage = new LoginPage(page);     
         //both fields are empty
-        await expect(page.getByText('zaloguj')).toBeDisabled();
+        await loginPage.isSignInButtonActive(false);
 
         // only id provided
-        await page.locator('#login_id').fill(correctUserId);
-        await expect(page.getByText('zaloguj')).toBeDisabled();
-        await page.locator('#login_id').clear();
+        await loginPage.idInputField.fill(correctUserId);
+        await loginPage.isSignInButtonActive(false);
+        await loginPage.idInputField.clear();
 
         // only password provided
-        await page.locator('#login_password').fill(correctPassword);
-        await expect(page.getByText('zaloguj')).toBeDisabled();
-        await page.locator('#login_password').clear();
+        await loginPage.passwordInputField.fill(correctPassword);
+        await loginPage.isSignInButtonActive(false);
+        await loginPage.passwordInputField.clear();
 
         // correct user id and incorrect password
-        await page.locator('#login_id').fill(correctUserId);
-        await page.locator('#login_password').fill(incorrectPassword);
-        await expect(page.getByText('zaloguj')).toBeDisabled();
-        await page.locator('#login_id').clear();
-        await page.locator('#login_password').clear();
+        await loginPage.idInputField.fill(correctUserId);
+        await loginPage.passwordInputField.fill(incorrectPassword);
+        await loginPage.isSignInButtonActive(false);
+        await loginPage.idInputField.clear();
+        await loginPage.passwordInputField.clear();
 
         // incorrect user id and correct password
-        await page.locator('#login_id').fill(incorrectUserId);
-        await page.locator('#login_password').fill(correctPassword);
-        await expect(page.getByText('zaloguj')).toBeDisabled();
-        await page.locator('#login_id').clear();
-        await page.locator('#login_password').clear();
+        await loginPage.idInputField.fill(incorrectUserId);
+        await loginPage.passwordInputField.fill(correctPassword);
+        await loginPage.isSignInButtonActive(false);
+        await loginPage.idInputField.clear();
+        await loginPage.passwordInputField.clear();
 
         // user id and password are correct
-        await page.locator('#login_id').fill(correctPassword);
-        await page.locator('#login_password').fill(correctPassword);
-        await expect(page.getByText('zaloguj')).toBeEnabled();
+        await loginPage.idInputField.fill(correctPassword);
+        await loginPage.passwordInputField.fill(correctPassword);
+        await loginPage.isSignInButtonActive(true);
     })
 
     test('Tooltip for ID appears on hover on question mark', async({page}) => {
-        await page.hover('#login_id_container i.tooltip');
-        await expect(page.locator('#login_id_container i.tooltip')).toHaveAttribute('aria-describedby');
-        await expect(page.locator('#login_id_container i.tooltip')).toHaveText(idTooltipText);
+        const loginPage = new LoginPage(page);
+        await loginPage.idFieldTooltip.hover();
+        await loginPage.checkTooltip('id', idTooltipText);
 
     })
 
     test('Tooltip for Password appears on hover on question mark', async({page}) => {
-        await page.hover('#login_password_container i.tooltip');
-        await expect(page.locator('#login_password_container i.tooltip')).toHaveAttribute('aria-describedby');
-        await expect(page.locator('#login_password_container i.tooltip')).toHaveText(passwordTooltipText);
+        const loginPage = new LoginPage(page);
+        await loginPage.passwordFieldTooltip.hover()
+        await loginPage.checkTooltip('password', passwordTooltipText);
     })
 
     test('Redirection to the "More about security" page', async({page}) => {
-        await expect(page.getByText('o bezpiecze')).toBeEnabled();
-        await page.getByText('o bezpiecze').click();
+        const loginPage = new LoginPage(page);
+        await expect(loginPage.moreAboutSecurityButton).toBeEnabled();
+        await loginPage.moreAboutSecurityButton.click();
         await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
     })
 
     test('Rediresction from "More about security" to the "Login" page', async({page}) => {
-        await page.getByText('o bezpiecze').click();
+        const loginPage = new LoginPage(page);
+        await loginPage.moreAboutSecurityButton.click();
         await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
         await page.getByText('do strony logowania').click();
         await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');

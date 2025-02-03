@@ -79,7 +79,7 @@ export class Navigation {
         await this.ustawieniaButton.click();
     }
 
-    async checkHeaderText (text: string) {
-        await expect(this.subPageHeared).toHaveText(text)
+    async checkHeaderText (headerText: string) {
+        await expect(this.subPageHeared).toHaveText(headerText)
     }
 }
