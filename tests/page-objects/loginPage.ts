@@ -27,28 +27,25 @@ export class LoginPage {
     }
 
     /**
-     * Log into the system.
-     * 
-     * @param field - "id" - for the id field, "password" - for the password field
+     * Thish method checks Login Page fields error message
+     * @param fieldName - "id" - for the id field, "password" - for the password field
      * @param errorMessageText - provide message you want to check
      */
-    async checkErrorMessage (field, errorMessageText) {
-        await expect(this.page.locator(`#error_login_${field}`)).toHaveText(errorMessageText)
+    async checkErrorMessage (fieldName, errorMessageText) {
+        await expect(this.page.locator(`#error_login_${fieldName}`)).toHaveText(errorMessageText)
     }
 
     /**
-     * Log into the system.
-     * 
-     * @param containerName - "id" - for the id field, "password" - for the password field
+     * Thish method checks Login Page fields highlighting.
+     * @param fieldName - "id" - for the id field, "password" - for the password field
      * @param containerValue - "is-valid" - for the valid data, "has-error" - for the invalid data
      */
-    async checkFieldHighlight (containerName, containerValue){
-        expect(this.page.locator(`#login_${containerName}_container .grid-20`)).toHaveClass(`grid-20 grid-ms-48 grid-space-1 field ${containerValue}`);
+    async checkFieldHighlight (fieldName, containerValue){
+        expect(this.page.locator(`#login_${fieldName}_container .grid-20`)).toHaveClass(`grid-20 grid-ms-48 grid-space-1 field ${containerValue}`);
     }
 
     /**
-     * Log into the system.
-     * 
+     * This method checks SignIn button to be desabled or enabled
      * @param isActive - true - button enabled, false - button disabled
      */
     async isSignInButtonActive(isActive: boolean){
@@ -61,14 +58,13 @@ export class LoginPage {
     }
 
     /**
-     * Log into the system.
-     * 
-     * @param containerName - "id" - for the id field, "password" - for the password field
+     * Thish method checks Tooltip for the fields at the Login Page
+     * @param fieldName - "id" - for the id field, "password" - for the password field
      * @param tooltipText - text to verify
      */
-    async checkTooltip (containerName, tooltipText) {
-        await expect(this.page.locator(`#login_${containerName}_container i.tooltip`)).toHaveAttribute('aria-describedby');
-        await expect(this.page.locator(`#login_${containerName}_container i.tooltip`)).toHaveText(tooltipText);
+    async checkTooltip (fieldName, tooltipText) {
+        await expect(this.page.locator(`#login_${fieldName}_container i.tooltip`)).toHaveAttribute('aria-describedby');
+        await expect(this.page.locator(`#login_${fieldName}_container i.tooltip`)).toHaveText(tooltipText);
     }
     
 
