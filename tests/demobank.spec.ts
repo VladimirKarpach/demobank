@@ -1,11 +1,7 @@
 import {test, expect} from '@playwright/test';
-import exp from 'constants';
-import { sign } from 'crypto';
-import { describe } from 'node:test';
-import { text } from 'stream/consumers';
+import { PageManager } from './page-objects/pageManager';
 import { LoginPage } from './page-objects/loginPage';
 import { Navigation } from './page-objects/bankPage';
-import { log } from 'console';
 
 const correctUserId = 'TestUser',
       correctPassword = 'TestPass',
@@ -25,101 +21,101 @@ test.describe('Login Page', () => {
     })
 
     test('The ID field is required', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.idInputField.click();
-        await loginPage.passwordInputField.click();
-        await loginPage.checkErrorMessage('id', 'pole wymagane');
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().idInputField.click();
+        await pageManager.onLoginPage().passwordInputField.click();
+        await pageManager.onLoginPage().checkErrorMessage('id', 'pole wymagane');
     })
 
     test('The Password field is required', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.passwordInputField.click();
-        await loginPage.idInputField.click();
-        await loginPage.checkErrorMessage('password', 'pole wymagane');
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().passwordInputField.click();
+        await pageManager.onLoginPage().idInputField.click();
+        await pageManager.onLoginPage().checkErrorMessage('password', 'pole wymagane');
     })
 
     test('ID must be 8 characters long', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.idInputField.fill(incorrectUserId);
-        await loginPage.signInButton.click({force: true});
-        await loginPage.checkErrorMessage('id', 'identyfikator ma min. 8 znaków')
-        await loginPage.checkFieldHighlight('id', 'has-error')
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().idInputField.fill(incorrectUserId);
+        await pageManager.onLoginPage().signInButton.click({force: true});
+        await pageManager.onLoginPage().checkErrorMessage('id', 'identyfikator ma min. 8 znaków')
+        await pageManager.onLoginPage().checkFieldHighlight('id', 'has-error')
 
-        await loginPage.idInputField.fill(correctUserId);
-        await loginPage.signInButton.click({force: true});
-        await loginPage.checkFieldHighlight('id', 'is-valid')
+        await pageManager.onLoginPage().idInputField.fill(correctUserId);
+        await pageManager.onLoginPage().signInButton.click({force: true});
+        await pageManager.onLoginPage().checkFieldHighlight('id', 'is-valid')
     })
 
     test('Password must be 8 characters long', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.passwordInputField.fill(incorrectPassword);
-        await loginPage.signInButton.click({force: true});
-        await loginPage.checkErrorMessage('password', 'hasło ma min. 8 znaków')
-        await loginPage.checkFieldHighlight('password', 'has-error')
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().passwordInputField.fill(incorrectPassword);
+        await pageManager.onLoginPage().signInButton.click({force: true});
+        await pageManager.onLoginPage().checkErrorMessage('password', 'hasło ma min. 8 znaków')
+        await pageManager.onLoginPage().checkFieldHighlight('password', 'has-error')
 
-        await loginPage.passwordInputField.fill(correctPassword);
-        await loginPage.signInButton.click({force: true});
-        await loginPage.checkFieldHighlight('password', 'is-valid')
+        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().signInButton.click({force: true});
+        await pageManager.onLoginPage().checkFieldHighlight('password', 'is-valid')
     })
 
     test('Sign In button isn\'t clickable untill all correct data provided', async({page}) => {   
-        const loginPage = new LoginPage(page);     
+        const pageManager = new PageManager(page);
         //both fields are empty
-        await loginPage.isSignInButtonActive(false);
+        await pageManager.onLoginPage().isSignInButtonActive(false);
 
         // only id provided
-        await loginPage.idInputField.fill(correctUserId);
-        await loginPage.isSignInButtonActive(false);
-        await loginPage.idInputField.clear();
+        await pageManager.onLoginPage().idInputField.fill(correctUserId);
+        await pageManager.onLoginPage().isSignInButtonActive(false);
+        await pageManager.onLoginPage().idInputField.clear();
 
         // only password provided
-        await loginPage.passwordInputField.fill(correctPassword);
-        await loginPage.isSignInButtonActive(false);
-        await loginPage.passwordInputField.clear();
+        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().isSignInButtonActive(false);
+        await pageManager.onLoginPage().passwordInputField.clear();
 
         // correct user id and incorrect password
-        await loginPage.idInputField.fill(correctUserId);
-        await loginPage.passwordInputField.fill(incorrectPassword);
-        await loginPage.isSignInButtonActive(false);
-        await loginPage.idInputField.clear();
-        await loginPage.passwordInputField.clear();
+        await pageManager.onLoginPage().idInputField.fill(correctUserId);
+        await pageManager.onLoginPage().passwordInputField.fill(incorrectPassword);
+        await pageManager.onLoginPage().isSignInButtonActive(false);
+        await pageManager.onLoginPage().idInputField.clear();
+        await pageManager.onLoginPage().passwordInputField.clear();
 
         // incorrect user id and correct password
-        await loginPage.idInputField.fill(incorrectUserId);
-        await loginPage.passwordInputField.fill(correctPassword);
-        await loginPage.isSignInButtonActive(false);
-        await loginPage.idInputField.clear();
-        await loginPage.passwordInputField.clear();
+        await pageManager.onLoginPage().idInputField.fill(incorrectUserId);
+        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().isSignInButtonActive(false);
+        await pageManager.onLoginPage().idInputField.clear();
+        await pageManager.onLoginPage().passwordInputField.clear();
 
         // user id and password are correct
-        await loginPage.idInputField.fill(correctPassword);
-        await loginPage.passwordInputField.fill(correctPassword);
-        await loginPage.isSignInButtonActive(true);
+        await pageManager.onLoginPage().idInputField.fill(correctPassword);
+        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().isSignInButtonActive(true);
     })
 
     test('Tooltip for ID appears on hover on question mark', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.idFieldTooltip.hover();
-        await loginPage.checkTooltip('id', idTooltipText);
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().idFieldTooltip.hover();
+        await pageManager.onLoginPage().checkTooltip('id', idTooltipText);
 
     })
 
     test('Tooltip for Password appears on hover on question mark', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.passwordFieldTooltip.hover()
-        await loginPage.checkTooltip('password', passwordTooltipText);
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().passwordFieldTooltip.hover()
+        await pageManager.onLoginPage().checkTooltip('password', passwordTooltipText);
     })
 
     test('Redirection to the "More about security" page', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await expect(loginPage.moreAboutSecurityButton).toBeEnabled();
-        await loginPage.moreAboutSecurityButton.click();
+        const pageManager = new PageManager(page);
+        await expect(pageManager.onLoginPage().moreAboutSecurityButton).toBeEnabled();
+        await pageManager.onLoginPage().moreAboutSecurityButton.click();
         await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
     })
 
     test('Rediresction from "More about security" to the "Login" page', async({page}) => {
-        const loginPage = new LoginPage(page);
-        await loginPage.moreAboutSecurityButton.click();
+        const pageManager = new PageManager(page);
+        await pageManager.onLoginPage().moreAboutSecurityButton.click();
         await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
         await page.getByText('do strony logowania').click();
         await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');
@@ -129,98 +125,98 @@ test.describe('Login Page', () => {
 
 test.describe('Navigation by tabs', () => {
     test.beforeEach(async({page}) => {
-        const loginPage = new LoginPage(page);
-        loginPage.signIn();
+        const pageManager = new PageManager(page);
+        pageManager.onLoginPage().signIn();
     })
 
     test('Navigate to the "mój pulpit" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.mojPulpitPage();
-        await navigateTo.checkHeaderText('konta osobiste')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().mojPulpitPage();
+        await pageManager.navigateTo().checkHeaderText('konta osobiste')
     })
 
     test('Navigate to the "mój pulpit -> szybki przelew" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.mojPulpitSzybkiPzelewPage();
-        await navigateTo.checkHeaderText('szybki przelew')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().mojPulpitSzybkiPzelewPage();
+        await pageManager.navigateTo().checkHeaderText('szybki przelew')
     })
 
     test('Navigate to the "mój pulpit -> doładowanie telefony" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.mojPulpitDoladowanieTelefonuPage();
-        await navigateTo.checkHeaderText('doładowanie telefonu')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().mojPulpitDoladowanieTelefonuPage();
+        await pageManager.navigateTo().checkHeaderText('doładowanie telefonu')
     })
 
     test('Navigate to the "mój pulpit -> manager finansowy" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.mojPulpitManagerFinansowyPage();
-        await navigateTo.checkHeaderText('manager finansowy')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().mojPulpitManagerFinansowyPage();
+        await pageManager.navigateTo().checkHeaderText('manager finansowy')
     })
     
     test('Navigate to the "konta osobiste" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.kontaOsobistePage();
-        await navigateTo.checkHeaderText('konta osobiste')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().kontaOsobistePage();
+        await pageManager.navigateTo().checkHeaderText('konta osobiste')
     })
 
     test('Navigate to the "płatności" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.platnosciPage();
-        await navigateTo.checkHeaderText('przelew dowolny')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().platnosciPage();
+        await pageManager.navigateTo().checkHeaderText('przelew dowolny')
     })
     
     test('Navigat to the "Raporty" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.raportyPage();
-        await navigateTo.checkHeaderText('Raporty')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().raportyPage();
+        await pageManager.navigateTo().checkHeaderText('Raporty')
 
     })
 
     test('Navigat to the "Raporty (iFrame)" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.raportyIframePage();
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().raportyIframePage();
         const frame = page.frameLocator('#main_content iframe');
         await expect(frame.getByRole('heading').first()).toHaveText('Raporty (iframe)');
     })
 
 
     test('Navigate to the "generuj przelew" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.generujPrzelewPage();
-        await navigateTo.checkHeaderText('Generowanie Przelewu')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().generujPrzelewPage();
+        await pageManager.navigateTo().checkHeaderText('Generowanie Przelewu')
     })
 
     test('Navigate to the "wykresy" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.wykresyPage();
-        await navigateTo.checkHeaderText('Wykresy')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().wykresyPage();
+        await pageManager.navigateTo().checkHeaderText('Wykresy')
     })
 
     test('Navigate to the "tabele danych" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.tabeleDanychPage();
-        await navigateTo.checkHeaderText('Tabele danych')
+        const pageManager = new PageManager(page);
+        await pageManager.navigateTo().tabeleDanychPage();
+        await pageManager.navigateTo().checkHeaderText('Tabele danych')
     })
 
     test('Navigate to the "ustawienia" page', async({page}) => {
-        const navigateTo = new Navigation(page);
-        await navigateTo.ustawieniaPage();
+        const pageManager = new PageManager(page)
+        await pageManager.navigateTo().ustawieniaPage();
         await expect(page.locator('.login-highlight')).toHaveText('Strona w budowie!');
     })
 })
 
 test('Logout', async({page}) => {
-    const loginPage = new LoginPage (page)
+    const onLoginPage = new LoginPage (page)
     await page.goto('https://demo-bank.vercel.app/');
-    loginPage.signIn();
+    onLoginPage.signIn();
     await page.getByText('Wyloguj').click();
     await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');
 })
 
 test.describe('Mój pulpit page', () => {
     test.beforeEach(async({page}) => {
-        const loginPage = new LoginPage(page);
-        loginPage.signIn();
+        const onLoginPage = new LoginPage(page);
+        onLoginPage.signIn();
     })
 
     test.describe('Quick transfer', () => {
