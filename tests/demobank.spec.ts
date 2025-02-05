@@ -2,6 +2,7 @@ import {test, expect} from '@playwright/test';
 import { PageManager } from './page-objects/pageManager';
 import { LoginPage } from './page-objects/loginPage';
 import { Navigation } from './page-objects/bankPage';
+import { MojPuplitPage } from './page-objects/mojPolpitPage';
 
 const correctUserId = 'TestUser',
       correctPassword = 'TestPass',
@@ -206,9 +207,9 @@ test.describe('Navigation by tabs', () => {
 })
 
 test('Logout', async({page}) => {
-    const onLoginPage = new LoginPage (page)
+    const pageManager = new PageManager(page);
     await page.goto('https://demo-bank.vercel.app/');
-    onLoginPage.signIn();
+    pageManager.onLoginPage().signIn();
     await page.getByText('Wyloguj').click();
     await expect(page.locator('.wborder#header_2')).toHaveText('Wersja demonstracyjna serwisu Demobank');
 })
@@ -216,99 +217,74 @@ test('Logout', async({page}) => {
 test.describe('Mój pulpit page', () => {
     test.beforeEach(async({page}) => {
         const onLoginPage = new LoginPage(page);
-        onLoginPage.signIn();
+        await onLoginPage.signIn();
     })
 
     test.describe('Quick transfer', () => {
-        const dropbox = 
 
         test('Check header', async({page}) => {
-          const headerText = await page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.wborder').textContent()
-          expect(headerText).toEqual('szybki przelew');
+            const pageManager = new PageManager(page);
+            expect(await pageManager.onMojPulpitPage().szybkiPrzelewBox.locator('.wborder').textContent()).toEqual('szybki przelew');
         })
 
         test('Check tooltip', async({page}) => {
-            const questionMarkButton = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('i');
-            await questionMarkButton.hover();
-            await expect(questionMarkButton).toHaveAttribute('aria-describedby');
-            await expect(questionMarkButton).toHaveText(szybkiPrzelewTooltipText);  
+            const pageManager = new PageManager(page);
+            await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.hover();
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckTooltipText(szybkiPrzelewTooltipText);
         })
 
         test('All fields are required', async({page}) => {
-            const dropbox = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.form-row', {hasText: 'do'});
-            const amounInput = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.form-row', {hasText: 'kwota'});
-            const titleInput = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('.form-row', {hasText: 'tytu'});
+            const pageManager = new PageManager(page)
 
-            await page.locator('.box-white', {hasText: 'szybki przelew'}).getByRole('button').click();
-            
-            await expect(dropbox.locator('.error')).toHaveText('pole wymagane');
-            await expect(amounInput.locator('.error')).toHaveText('pole wymagane');
-            await expect(titleInput.locator('.error')).toHaveText('pole wymagane');
-            
-            await dropbox.locator('select').selectOption({index: 1});
-            await page.getByText('tytu').click();
-            await expect(dropbox.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-28 grid-mt-48 grid-mt-space-0 field is-valid');
+            await page.waitForTimeout(500)
+            await pageManager.onMojPulpitPage().szybkiPrzelewSubmitButton.click();
 
-            await amounInput.getByRole('textbox').fill('100');
-            await page.getByText('tytu').click();
-            await expect(amounInput.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-24 grid-mt-42 grid-mt-space-0 field is-valid');
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'pole wymagane', 'has-error');
             
-            await titleInput.getByRole('textbox').fill('Transfer title');
-            await page.getByText('tytu').click();
-            await expect(titleInput.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-28 grid-mt-48 grid-mt-space-0 field is-valid');
+            await pageManager.onMojPulpitPage().szybkiPrzelewToField.locator('select').selectOption({index: 1});
+            await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'is-valid');
+
+            await pageManager.onMojPulpitPage().szybkiPrzelewAmountField.getByRole('textbox').fill('100');
+            await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'is-valid');
+            
+            await pageManager.onMojPulpitPage().szybkiPrzelewTitleField.getByRole('textbox').fill('Transfer title');
+            await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'is-valid');
         })
 
         test('Check dropdown options', async({page}) => {
-            const dropbox = page.locator('.box-white', {hasText: 'szybki przelew'}).locator('#widget_1_transfer_receiver');
-            await dropbox.click();
-            const optionsList = dropbox.getByRole('option');
-            await expect(optionsList).toHaveText(szybkiPrzelewDropdownOptions);
+            const pageManager = new PageManager(page);
+            await pageManager.onMojPulpitPage().szybkiPrzelewToField.click();
+            await expect(pageManager.onMojPulpitPage().szybkiPrzelewToField.getByRole('option')).toHaveText(szybkiPrzelewDropdownOptions);
         })
 
         test('Correct transfer data was sent', async({page}) => {
-            const box = page.locator('.box-white', {hasText: 'szybki przelew'});
-            const dropbox = box.locator('.form-row', {hasText: 'do'});
-            const amounInput = box.locator('.form-row', {hasText: 'kwota'});
-            const titleInput = box.locator('.form-row', {hasText: 'tytu'});
+            const pageManager = new PageManager(page);
             let dropdownOprion = 1;
             let transferAmount = '100';
             let transferTitle = 'Transfer Title';
-            let transferReceiver = await dropbox.locator('select').locator('option').nth(dropdownOprion).textContent();
+            let transferReceiver = await pageManager.onMojPulpitPage().szybkiPrzelewToField.locator('option').nth(dropdownOprion).textContent();
 
             // send transfer
-            await dropbox.locator('select').selectOption({index: dropdownOprion});
-            await amounInput.getByRole('textbox').fill(transferAmount);
-            await titleInput.getByRole('textbox').fill(transferTitle);
-            await box.getByRole('button').click();
+            await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(dropdownOprion, transferAmount, transferTitle);
 
             // check tranfer details
-
-            await expect(page.locator('#ui-id-1')).toHaveText('Przelew wykonany');
-            await expect(page.locator('[class="hide ui-dialog-content ui-widget-content"]')).toContainText(`Odbiorca:  ${transferReceiver}`);
-            await expect(page.locator('[class="hide ui-dialog-content ui-widget-content"]')).toContainText(`Kwota: ${transferAmount},00PLN`);
-            await expect(page.locator('[class="hide ui-dialog-content ui-widget-content"]')).toContainText(`Nazwa: ${transferTitle}`);
+            await expect(pageManager.onMojPulpitPage().szybkiPrzelewTransferCompletedDialog.locator('.ui-widget-header')).toContainText('Przelew wykonany');
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckDialodContent(transferReceiver, transferAmount, transferTitle);
         })
 
         test('Transfer details window can be closed', async({page}) => {
-            const box = page.locator('.box-white', {hasText: 'szybki przelew'});
-            const dropbox = box.locator('.form-row', {hasText: 'do'});
-            const amounInput = box.locator('.form-row', {hasText: 'kwota'});
-            const titleInput = box.locator('.form-row', {hasText: 'tytu'});
-            let dropdownOprion = 1;
+            const pageManager = new PageManager(page);
             let transferAmount = '100';
             let transferTitle = 'Transfer Title';
-            let transferReceiver = await dropbox.locator('select').locator('option').nth(dropdownOprion).textContent();
 
-            // send transfer
-            await dropbox.locator('select').selectOption({index: dropdownOprion});
-            await amounInput.getByRole('textbox').fill(transferAmount);
-            await titleInput.getByRole('textbox').fill(transferTitle);
-            await box.getByRole('button').click();
-
-            // close the window
-            expect(await page.isVisible('[role="dialog"]')).toBe(true);
-            await page.locator('[role="dialog"]').getByRole('button').click();
-            expect(await page.isVisible('[role="dialog"]')).toBe(false);
+            await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(2, transferAmount, transferTitle);
+            await pageManager.onMojPulpitPage().szybkiPrzelewCloseComletedTransferDialogAndCheckItWasClosed();
+           
         })
     })
 
