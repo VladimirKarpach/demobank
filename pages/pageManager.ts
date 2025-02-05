@@ -1,7 +1,7 @@
 import { Page, expect } from "@playwright/test";
-import { LoginPage } from '../page-objects/loginPage';
-import { Navigation } from '../page-objects/bankPage';
-import { MojPuplitPage } from '../page-objects/mojPolpitPage';
+import { LoginPage } from './loginPage';
+import { Navigation } from './bankPage';
+import { MojPuplitPage } from './mojPolpitPage';
 
 export class PageManager {
     private readonly page: Page

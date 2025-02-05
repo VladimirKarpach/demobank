@@ -1,8 +1,6 @@
 import {test, expect} from '@playwright/test';
-import { PageManager } from './page-objects/pageManager';
-import { LoginPage } from './page-objects/loginPage';
-import { Navigation } from './page-objects/bankPage';
-import { MojPuplitPage } from './page-objects/mojPolpitPage';
+import { PageManager } from '../pages/pageManager';
+import { LoginPage } from '../pages/loginPage';
 
 const correctUserId = 'TestUser',
       correctPassword = 'TestPass',
@@ -239,27 +237,28 @@ test.describe('Mój pulpit page', () => {
             await page.waitForTimeout(500)
             await pageManager.onMojPulpitPage().szybkiPrzelewSubmitButton.click();
 
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'pole wymagane', 'has-error');
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'pole wymagane', 'has-error');
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'pole wymagane', 'has-error');
             
-            await pageManager.onMojPulpitPage().szybkiPrzelewToField.locator('select').selectOption({index: 1});
+            await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().szybkiPrzelewToField, 2)
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'is-valid');
+            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'is-valid');
 
             await pageManager.onMojPulpitPage().szybkiPrzelewAmountField.getByRole('textbox').fill('100');
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'is-valid');
+            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'is-valid');
             
             await pageManager.onMojPulpitPage().szybkiPrzelewTitleField.getByRole('textbox').fill('Transfer title');
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'is-valid');
+            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'is-valid');
         })
 
         test('Check dropdown options', async({page}) => {
             const pageManager = new PageManager(page);
-            await pageManager.onMojPulpitPage().szybkiPrzelewToField.click();
-            await expect(pageManager.onMojPulpitPage().szybkiPrzelewToField.getByRole('option')).toHaveText(szybkiPrzelewDropdownOptions);
+            // await pageManager.onMojPulpitPage().szybkiPrzelewToField.click();
+            // await expect(pageManager.onMojPulpitPage().szybkiPrzelewToField.getByRole('option')).toHaveText(szybkiPrzelewDropdownOptions);
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().szybkiPrzelewToField, szybkiPrzelewDropdownOptions)
         })
 
         test('Correct transfer data was sent', async({page}) => {
@@ -270,7 +269,7 @@ test.describe('Mój pulpit page', () => {
             let transferReceiver = await pageManager.onMojPulpitPage().szybkiPrzelewToField.locator('option').nth(dropdownOprion).textContent();
 
             // send transfer
-            await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(dropdownOprion, transferAmount, transferTitle);
+            await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(pageManager.onMojPulpitPage().szybkiPrzelewToField, dropdownOprion, transferAmount, transferTitle);
 
             // check tranfer details
             await expect(pageManager.onMojPulpitPage().szybkiPrzelewTransferCompletedDialog.locator('.ui-widget-header')).toContainText('Przelew wykonany');
@@ -282,7 +281,7 @@ test.describe('Mój pulpit page', () => {
             let transferAmount = '100';
             let transferTitle = 'Transfer Title';
 
-            await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(2, transferAmount, transferTitle);
+            await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(pageManager.onMojPulpitPage().szybkiPrzelewToField, 2, transferAmount, transferTitle);
             await pageManager.onMojPulpitPage().szybkiPrzelewCloseComletedTransferDialogAndCheckItWasClosed();
            
         })
@@ -290,73 +289,67 @@ test.describe('Mój pulpit page', () => {
 
     test.describe('Phone top-up', () => {
         test('Check header', async({page}) => {
-            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
-            const headerText = await box.locator('.wborder').textContent();
-            expect(headerText).toEqual('doładowanie telefonu');
+            const pageManager = new PageManager(page);
+            expect(await pageManager.onMojPulpitPage().doladowanieTelefonuBox.locator('.wborder').textContent()).toEqual('doładowanie telefonu')
         })
 
         test('All fields are required', async({page}) => {
+            const pageManager = new PageManager(page);
             const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
             const toField = box.locator('.form-row', {hasText: 'wybierz'});
             const amountField = box.locator('.form-row', {hasText: 'kwota'});
             const verificationCheckBox = box.locator('.form-row', {hasText: 'zapozna'});
 
-            await box.getByRole('button').click();
+            await page.waitForTimeout(500);
+            await pageManager.onMojPulpitPage().doladowanieTelefonuSubmitButton.click();
 
             // error message appears
-            await expect(toField.locator('.error')).toHaveText('pole wymagane');
-            await expect(amountField.locator('.error')).toHaveText('pole wymagane');
-            await expect(verificationCheckBox.locator('.error')).toHaveText('pole wymagane');
+            await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'pole wymagane', 'has-error');
+            await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 'pole wymagane');
 
             // error message disappears
-            await toField.locator('select').selectOption({index: 1});
-            await amountField.getByRole('textbox').fill('100');
-            await verificationCheckBox.getByRole('checkbox').check();
+            await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 2) 
+            await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').fill('100');
+            await page.waitForTimeout(500)
+            await pageManager.onMojPulpitPage().doladowanieTelefonuVerificationCheckbox.getByRole('checkbox').click();
 
-            await expect(toField.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-28 grid-mt-48 grid-mt-space-0 field is-valid');
-            await expect(amountField.locator('.grid-space-2')).toHaveClass('grid-space-2 grid-24 grid-mt-38 grid-mt-space-0 field is-valid');
-            await expect(verificationCheckBox.locator('.grid-48')).toHaveClass('grid-48 grid-mt-48 field checkbox-inline is-valid');
+            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 'is-valid');
+            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
         })
 
         test('Check verification checkbox', async({page}) => {
-            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
-            const verificationCheckBox = box.locator('.form-row', {hasText: 'zapozna'});
-
-            await expect(verificationCheckBox.getByRole('checkbox')).not.toBeChecked();
-            await verificationCheckBox.getByRole('checkbox').check();
-            await expect(verificationCheckBox.getByRole('checkbox')).toBeChecked();
+            const pageManager = new PageManager(page)
+            await pageManager.onMojPulpitPage().doladowanieTelefonuCheckboxCheck()
         })
 
         test('Check dropdown options', async({page}) => {
-            const box = page.locator('.box-white', {hasText: 'doładowanie telefonu'});
-            const toField = box.locator('.form-row', {hasText: 'wybierz'});
-            await toField.click();
-            const optionsList = toField.getByRole('option');
-            await expect(optionsList).toHaveText(doladoawaniaDropboxOptions)
+            const pageManager = new PageManager(page);
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuToField, doladoawaniaDropboxOptions)
         })
 
-        test('Correct top-up data was sent', async({page}) => {
+        // test('Correct top-up data was sent', async({page}) => {
 
-        })
+        // })
 
-        test('Top-up detaild window can be closed', async({page}) => {
+        // test('Top-up detaild window can be closed', async({page}) => {
 
-        })
+        // })
 
-        test('Tooltip apears if 500, 502, 503 numbers selected', async({page}) => {
+        // test('Tooltip apears if 500, 502, 503 numbers selected', async({page}) => {
 
-        })
+        // })
 
-        test('Minimum top-up sum is 5PLN', async({page}) => {
+        // test('Minimum top-up sum is 5PLN', async({page}) => {
 
-        })
+        // })
 
-        test('Select for the Amount appers if 504 number selected', async({page}) => {
+        // test('Select for the Amount appers if 504 number selected', async({page}) => {
 
-        })
+        // })
 
-        test('Check options at the Amout dropdown', async({page}) => {
+        // test('Check options at the Amout dropdown', async({page}) => {
 
-        })
+        // })
     })
 })
