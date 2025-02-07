@@ -219,8 +219,9 @@ test.describe('Mój pulpit page', () => {
 
         test('Check tooltip', async({page}) => {
             const pageManager = new PageManager(page);
+            await page.waitForLoadState('load');
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.hover();
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckTooltipText(variables.szybkiPrzelewPage.TooltipText);
+            await pageManager.onMojPulpitPage().checkTooltipText(pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton, variables.szybkiPrzelewPage.tooltipText);
         })
 
         test('All fields are required', async({page}) => {
@@ -235,26 +236,28 @@ test.describe('Mój pulpit page', () => {
             
             await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().szybkiPrzelewToField, 2)
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
-            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'is-valid');
+            await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewToField, 'is-valid');
 
             await pageManager.onMojPulpitPage().szybkiPrzelewAmountField.getByRole('textbox').fill('100');
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
-            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'is-valid');
+            await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewAmountField, 'is-valid');
             
             await pageManager.onMojPulpitPage().szybkiPrzelewTitleField.getByRole('textbox').fill('Transfer title');
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.click();
-            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'is-valid');
+            await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().szybkiPrzelewTitleField, 'is-valid');
         })
 
         test('Check dropdown options', async({page}) => {
             const pageManager = new PageManager(page);
             // await pageManager.onMojPulpitPage().szybkiPrzelewToField.click();
             // await expect(pageManager.onMojPulpitPage().szybkiPrzelewToField.getByRole('option')).toHaveText(szybkiPrzelewDropdownOptions);
-            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().szybkiPrzelewToField, variables.szybkiPrzelewPage.DropdownOptions)
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().szybkiPrzelewToField, variables.szybkiPrzelewPage.dropdownOptions)
         })
 
         test('Correct transfer data was sent', async({page}) => {
             const pageManager = new PageManager(page);
+            await page.waitForLoadState('load');
+
             let dropdownOprion = 1;
             let transferAmount = '100';
             let transferTitle = 'Transfer Title';
@@ -272,9 +275,11 @@ test.describe('Mój pulpit page', () => {
             const pageManager = new PageManager(page);
             let transferAmount = '100';
             let transferTitle = 'Transfer Title';
+            await page.waitForLoadState('load');
+
 
             await pageManager.onMojPulpitPage().szybkiPrzelewSendTransfer(pageManager.onMojPulpitPage().szybkiPrzelewToField, 2, transferAmount, transferTitle);
-            await pageManager.onMojPulpitPage().szybkiPrzelewCloseComletedTransferDialogAndCheckItWasClosed();
+            await pageManager.onMojPulpitPage().closeComletedTransferDialogAndCheckItWasClosed();
            
         })
     })
@@ -306,8 +311,8 @@ test.describe('Mój pulpit page', () => {
             await page.waitForTimeout(500)
             await pageManager.onMojPulpitPage().doladowanieTelefonuVerificationCheckbox.getByRole('checkbox').click();
 
-            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 'is-valid');
-            await pageManager.onMojPulpitPage().CheckFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+            await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 'is-valid');
+            await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
         })
 
         test('Check verification checkbox', async({page}) => {
@@ -317,31 +322,122 @@ test.describe('Mój pulpit page', () => {
 
         test('Check dropdown options', async({page}) => {
             const pageManager = new PageManager(page);
-            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuToField, variables.doladoawaniaPage.DropboxOptions)
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuToField, variables.doladoawaniaPage.dropboxOptions)
         })
 
-        // test('Correct top-up data was sent', async({page}) => {
+        test('Correct top-up data was sent', async({page}) => {
+            const pageManager = new PageManager (page);
+            let dropdownOptionIndex = 2;
+            let transferAmount = '1000';
+            let phoneNumber = await pageManager.onMojPulpitPage().doladowanieTelefonuToField.locator('option').nth(dropdownOptionIndex).textContent();
+            await pageManager.onMojPulpitPage().doladowanieTelefonuSendTransfer(pageManager.onMojPulpitPage().doladowanieTelefonuToField, dropdownOptionIndex, transferAmount);
 
-        // })
+            await expect(pageManager.onMojPulpitPage().doladowanieTelefonuTransferCompletedDialog.locator('#ui-id-1')).toHaveText('Doładowanie wykonane');
+            await expect(pageManager.onMojPulpitPage().doladowanieTelefonuTransferCompletedDialogCocntent).toHaveText(` Doładowanie wykonane!Kwota: ${transferAmount},00PLN Numer: ${phoneNumber}`);
+        })
 
-        // test('Top-up detaild window can be closed', async({page}) => {
+        test('Top-up detaild window can be closed', async({page}) => {
+            const pageManager = new PageManager(page);
+            await pageManager.onMojPulpitPage().doladowanieTelefonuSendTransfer(pageManager.onMojPulpitPage().doladowanieTelefonuToField, 3, '200');
+            await pageManager.onMojPulpitPage().closeComletedTransferDialogAndCheckItWasClosed();
+        })
 
-        // })
+        test('Tooltip apears if 500, 502, 503 numbers selected', async({page}) => {
+            const pageManager = new PageManager(page);
 
-        // test('Tooltip apears if 500, 502, 503 numbers selected', async({page}) => {
+            for (const phoneNumber of variables.doladoawaniaPage.telephoneNumbersWithoutDefaultTopUpValue){
+                await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().doladowanieTelefonuToField, undefined, phoneNumber);
+                expect(await pageManager.onMojPulpitPage().doladowanieTelefonuTopUpInfoTooltip.isVisible()).toBeTruthy();
+            }
+        })
 
-        // })
+        test('Check tooltip', async({page}) => {
+            const pageManager = new PageManager(page);
+            for (const phoneNumber of variables.doladoawaniaPage.telephoneNumbersWithoutDefaultTopUpValue){
+                await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().doladowanieTelefonuToField, undefined, phoneNumber);
+                await pageManager.onMojPulpitPage().doladowanieTelefonuTopUpInfoTooltip.hover();
+                expect(await pageManager.onMojPulpitPage().doladowanieTelefonuTopUpInfoTooltip.isVisible()).toBeTruthy();
+                if (phoneNumber === '503 xxx xxx'){
+                    await pageManager.onMojPulpitPage().checkTooltipText(pageManager.onMojPulpitPage().doladowanieTelefonuTopUpInfoTooltip, variables.doladoawaniaPage.doladowanieTelefonuTopUpInfoTooltipText500);
+                } else {
+                    await pageManager.onMojPulpitPage().checkTooltipText(pageManager.onMojPulpitPage().doladowanieTelefonuTopUpInfoTooltip, variables.doladoawaniaPage.doladowanieTelefonuTopUpInfoTooltipText150);
+                }
+            }
+        } )
 
-        // test('Minimum top-up sum is 5PLN', async({page}) => {
+        test('Boundary for the amount field for numbers 500, 502, 503', async ({page}) => {
+            const pageManager = new PageManager(page);
+            for (const phoneNumber of variables.doladoawaniaPage.telephoneNumbersWithoutDefaultTopUpValue){
+                await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().doladowanieTelefonuToField, undefined, phoneNumber);
+                if (phoneNumber === '503 xxx xxx'){
+                    // valid values range is 5 - 500
 
-        // })
+                    //check lowest minus 1
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('4');
+                    await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooLowErrorMessage, 'has-error');
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+                    
+                    //check lowest
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('5');
+                    await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+                    
+                    // check middle
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('348');
+                    await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
 
-        // test('Select for the Amount appers if 504 number selected', async({page}) => {
+                    //check highest
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('500');
+                    await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
 
-        // })
+                    //check highect plust 1
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('501');
+                    await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooHighErrorMessag500, 'has-error');
+                    await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+                } else {
+                    // valid values range is 5 - 150
 
-        // test('Check options at the Amout dropdown', async({page}) => {
+                     //check lowest minus 1
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('4');
+                     await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooLowErrorMessage, 'has-error');
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+                     
+                     //check lowest
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('5');
+                     await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+                     
+                     // check middle
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('112');
+                     await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+ 
+                     //check highest
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('150');
+                     await pageManager.onMojPulpitPage().checkFieldHighlight(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, 'is-valid');
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+ 
+                     //check highect plust 1
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuProvideDataToAmountField('151');
+                     await pageManager.onMojPulpitPage().checkFieldErrorMessage(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooHighErrorMessag150, 'has-error');
+                     await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.getByRole('textbox').clear();
+                }
+            }
+        })
 
-        // })
+        test('Select for the Amount appers if 504 number selected', async({page}) => {
+            const pageManager = new PageManager(page);
+            await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().doladowanieTelefonuToField, undefined, variables.doladoawaniaPage.telephoneNumbersWithDefaultTopUpValue[0]);
+            await expect(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.locator('#uniform-widget_1_topup_amount')).toHaveClass('selector fixedWidth')
+        })
+
+        test('Check options at the Amout dropdown', async({page}) => {
+            const pageManager = new PageManager(page);
+            await pageManager.onMojPulpitPage().selectDropdownOption(pageManager.onMojPulpitPage().doladowanieTelefonuToField, undefined, variables.doladoawaniaPage.telephoneNumbersWithDefaultTopUpValue[0]);
+            await pageManager.onMojPulpitPage().doladowanieTelefonuAmountField.click();
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, variables.doladoawaniaPage.amoutDropdownValues)
+        })
     })
 })

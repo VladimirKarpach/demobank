@@ -10,18 +10,24 @@ export class Variables {
     }
     
     szybkiPrzelewPage = {
-        TooltipText: 'widżet umożliwia zlecenie przelewu zwykłego do jednego ze zdefiniowanych odbiorców',
-        DropdownOptions: ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott']
+        tooltipText: 'widżet umożliwia zlecenie przelewu zwykłego do jednego ze zdefiniowanych odbiorców',
+        dropdownOptions: ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott']
     }
 
     doladoawaniaPage = {
-        DropboxOptions: ['wybierz telefon do doładowania', '500 xxx xxx', '502 xxx xxx', '503 xxx xxx', '504 xxx xxx'],
+        dropboxOptions: ['wybierz telefon do doładowania', '500 xxx xxx', '502 xxx xxx', '503 xxx xxx', '504 xxx xxx'],
+        telephoneNumbersWithoutDefaultTopUpValue: ['500 xxx xxx', '502 xxx xxx', '503 xxx xxx'],
+        telephoneNumbersWithDefaultTopUpValue: ['504 xxx xxx'],
+        doladowanieTelefonuTopUpInfoTooltipText150: 'Informacje o doładowaniu: Minimalna kwota doładowania to: 5 zł Maksymalna kwota doładowania to: 150 zł',
+        doladowanieTelefonuTopUpInfoTooltipText500: 'Informacje o doładowaniu: Minimalna kwota doładowania to: 5 zł Maksymalna kwota doładowania to: 500 zł',
+        amountTooLowErrorMessage: 'kwota musi być większa lub równa 5',
+        amountTooHighErrorMessag500: 'kwota musi być mniejsza lub równa 500',
+        amountTooHighErrorMessag150: 'kwota musi być mniejsza lub równa 150',
+        amoutDropdownValues: ['5', '10', '25', '40', '50', '100', '200']
+        
     }
 
     constructor () {
-        // this.loginPage = loginPage
-        // this.szybkiPrzelewPage = szybkiPrzelewPage
-        // this.doladoawaniaPage = doladoawaniaPage
-
+        
     }
 }

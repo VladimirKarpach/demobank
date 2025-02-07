@@ -15,6 +15,9 @@ export class MojPuplitPage {
     doladowanieTelefonuToField: Locator
     doladowanieTelefonuAmountField: Locator
     doladowanieTelefonuVerificationCheckbox: Locator
+    doladowanieTelefonuTransferCompletedDialog: Locator
+    doladowanieTelefonuTransferCompletedDialogCocntent: Locator
+    doladowanieTelefonuTopUpInfoTooltip: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -28,14 +31,21 @@ export class MojPuplitPage {
         this.szybkiPrzelewTransferCompletedDialogCocntent = this.szybkiPrzelewTransferCompletedDialog.locator('.hide.ui-widget-content')
         this.doladowanieTelefonuBox = page.locator('.box-white', {hasText: 'telefonu'})
         this.doladowanieTelefonuSubmitButton = this.doladowanieTelefonuBox.getByRole('button')
-        this. doladowanieTelefonuToField = this.doladowanieTelefonuBox.locator('.form-row', {hasText: 'wybierz'})
+        this.doladowanieTelefonuToField = this.doladowanieTelefonuBox.locator('.form-row', {hasText: 'wybierz'})
         this.doladowanieTelefonuAmountField = this.doladowanieTelefonuBox.locator('.form-row', {hasText: 'kwota'})
         this.doladowanieTelefonuVerificationCheckbox = this.doladowanieTelefonuBox.locator('.form-row', {hasText: 'zapozna'})
+        this.doladowanieTelefonuTransferCompletedDialog = page.getByRole('dialog')
+        this.doladowanieTelefonuTransferCompletedDialogCocntent = this.doladowanieTelefonuTransferCompletedDialog.locator('.hide.ui-widget-content')
+        this.doladowanieTelefonuTopUpInfoTooltip = this.doladowanieTelefonuBox.locator('.tooltip')
     }
 
-    async szybkiPrzelewCheckTooltipText(TooltipText){
-        await expect(this.szybkiPrzelewTooltipButton).toHaveText(TooltipText);
-        await expect(this.szybkiPrzelewTooltipButton).toHaveAttribute('aria-describedby');
+    async checkTooltipText(fieldName, tooltipText){
+        //await expect(fieldName).toHaveText(tooltipText);
+        let text = await fieldName.textContent();
+        text = text.replace(/\s+/g, ' ').trim();
+
+        expect(text).toEqual(tooltipText)
+        await expect(fieldName).toHaveAttribute('aria-describedby');
     }
 
     /**
@@ -47,7 +57,7 @@ export class MojPuplitPage {
     async checkFieldErrorMessage(field:Locator, errorText: string, fieldValue?: string) {
         await expect(field.locator('.error')).toHaveText(errorText);
         if (fieldValue != undefined)
-            await this.CheckFieldHighlight(field, fieldValue);
+            await this.checkFieldHighlight(field, fieldValue);
     }
 
     /**
@@ -55,7 +65,7 @@ export class MojPuplitPage {
      * @param field - provide field locator here
      * @param fieldValue - "is-valid" - green highlight, "has error" - red highlight
      */
-    async CheckFieldHighlight (field: Locator, fieldValue: string) {
+    async checkFieldHighlight (field: Locator, fieldValue: string) {
             const className = await field.locator('.grid-space-2').getAttribute('class');
             expect(className).toContain(fieldValue)
     }
@@ -78,14 +88,20 @@ export class MojPuplitPage {
         await this.szybkiPrzelewSubmitButton.click();
     }
 
-    async szybkiPrzelewCloseComletedTransferDialogAndCheckItWasClosed () {
+    async closeComletedTransferDialogAndCheckItWasClosed () {
         expect(await this.page.isVisible('[role="dialog"]')).toBe(true);
         await this.page.locator('[role="dialog"]').getByRole('button').click();
         expect(await this.page.isVisible('[role="dialog"]')).toBe(false);
     }
 
-    async selectDropdownOption (fieldLocator: Locator, optionNumber) {
-        await fieldLocator.locator('select').selectOption({index: optionNumber})
+    async selectDropdownOption (fieldLocator: Locator, optionNumber?, optionName?) {
+        if (optionNumber){
+            await fieldLocator.locator('select').selectOption({index: optionNumber});
+        }
+        if (optionName){
+            await this.page.waitForTimeout(200);
+            await fieldLocator.locator('select').selectOption({label: optionName});
+        }
     }
 
     async doladowanieTelefonuCheckboxCheck () {
@@ -103,4 +119,22 @@ export class MojPuplitPage {
         await dropdownLocator.click();
         await expect(dropdownLocator.getByRole('option')).toHaveText(optionsToCompare);
     }
+    /**
+     * This method send transfer
+     * @param fieldLocator - locator for the dropdown
+     * @param dropdownOption - dropdown select index
+     * @param transferAmount - provide amount of transfer
+     */
+    async doladowanieTelefonuSendTransfer (fieldLocator, dropdownOption, transferAmount) {
+        await this.selectDropdownOption(fieldLocator, dropdownOption)
+        await this.doladowanieTelefonuAmountField.getByRole('textbox').fill(transferAmount);
+        await this.doladowanieTelefonuCheckboxCheck()
+        await this.doladowanieTelefonuSubmitButton.click();
+    }
+
+    async doladowanieTelefonuProvideDataToAmountField (amount) {
+        await this.doladowanieTelefonuAmountField.getByRole('textbox').fill(amount);
+        await this.doladowanieTelefonuSubmitButton.click();
+    }
+
 }
