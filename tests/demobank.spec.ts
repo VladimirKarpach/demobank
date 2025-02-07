@@ -440,4 +440,38 @@ test.describe('Mój pulpit page', () => {
             await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuAmountField, variables.doladoawaniaPage.amoutDropdownValues)
         })
     })
+
+    // test.describe('Konto na życie', () => {
+    //     test('Section collapsed by default', async({page}) => {
+
+    //     })
+    //     test('Section can be expended by click on it', async({page}) => {
+
+    //     })
+
+    //     test('Section can be expended by click on the More button', async({page}) => {
+
+    //     })
+
+    //     test('Check account number', async({page}) => {
+
+    //     })
+
+    //     test('Check available amount', async({page}) => {
+
+    //     })
+
+    //     test('Check blocked amout', async({page}) => {
+
+    //     })
+
+    //     test('Ceck the credit lomit', async({page}) => {
+
+    //     })
+
+    //     test('Check the account owner', async({page}) => {
+
+    //     })
+    // })
 })
+
