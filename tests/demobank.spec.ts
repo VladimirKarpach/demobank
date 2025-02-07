@@ -1,17 +1,9 @@
 import {test, expect} from '@playwright/test';
 import { PageManager } from '../pages/pageManager';
 import { LoginPage } from '../pages/loginPage';
+import { Variables } from '../pages/variables';
 
-const correctUserId = 'TestUser',
-      correctPassword = 'TestPass',
-      incorrectUserId = 'Test123',
-      incorrectPassword = 'Pass123';
-
-let idTooltipText = 'Wprowadź identyfikator otrzymany z banku lub alias - dodatkowy własny identyfikator, samodzielnie zdefiniowany w Demobank online.',
-    passwordTooltipText = 'Wprowadź swoje hasło. Sprawdź, czy przycisk Caps Lock jest włączony. Uwaga: 3-krotne wprowadzenie błędnego hasła spowoduje zablokowanie dostępu do systemu.',
-    szybkiPrzelewTooltipText = 'widżet umożliwia zlecenie przelewu zwykłego do jednego ze zdefiniowanych odbiorców',
-    szybkiPrzelewDropdownOptions = ['wybierz odbiorcę przelewu', 'Jan Demobankowy', 'Chuck Demobankowy', 'Michael Scott'],
-    doladoawaniaDropboxOptions = ['wybierz telefon do doładowania', '500 xxx xxx', '502 xxx xxx', '503 xxx xxx', '504 xxx xxx'];
+const variables = new Variables();
 
 test.describe('Login Page', () => {
 
@@ -35,24 +27,24 @@ test.describe('Login Page', () => {
 
     test('ID must be 8 characters long', async({page}) => {
         const pageManager = new PageManager(page);
-        await pageManager.onLoginPage().idInputField.fill(incorrectUserId);
+        await pageManager.onLoginPage().idInputField.fill(variables.loginPage.incorrectUserId);
         await pageManager.onLoginPage().signInButton.click({force: true});
         await pageManager.onLoginPage().checkErrorMessage('id', 'identyfikator ma min. 8 znaków')
         await pageManager.onLoginPage().checkFieldHighlight('id', 'has-error')
 
-        await pageManager.onLoginPage().idInputField.fill(correctUserId);
+        await pageManager.onLoginPage().idInputField.fill(variables.loginPage.correctUserId);
         await pageManager.onLoginPage().signInButton.click({force: true});
         await pageManager.onLoginPage().checkFieldHighlight('id', 'is-valid')
     })
 
     test('Password must be 8 characters long', async({page}) => {
         const pageManager = new PageManager(page);
-        await pageManager.onLoginPage().passwordInputField.fill(incorrectPassword);
+        await pageManager.onLoginPage().passwordInputField.fill(variables.loginPage.incorrectPassword);
         await pageManager.onLoginPage().signInButton.click({force: true});
         await pageManager.onLoginPage().checkErrorMessage('password', 'hasło ma min. 8 znaków')
         await pageManager.onLoginPage().checkFieldHighlight('password', 'has-error')
 
-        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().passwordInputField.fill(variables.loginPage.correctPassword);
         await pageManager.onLoginPage().signInButton.click({force: true});
         await pageManager.onLoginPage().checkFieldHighlight('password', 'is-valid')
     })
@@ -63,46 +55,46 @@ test.describe('Login Page', () => {
         await pageManager.onLoginPage().isSignInButtonActive(false);
 
         // only id provided
-        await pageManager.onLoginPage().idInputField.fill(correctUserId);
+        await pageManager.onLoginPage().idInputField.fill(variables.loginPage.correctUserId);
         await pageManager.onLoginPage().isSignInButtonActive(false);
         await pageManager.onLoginPage().idInputField.clear();
 
         // only password provided
-        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().passwordInputField.fill(variables.loginPage.correctPassword);
         await pageManager.onLoginPage().isSignInButtonActive(false);
         await pageManager.onLoginPage().passwordInputField.clear();
 
         // correct user id and incorrect password
-        await pageManager.onLoginPage().idInputField.fill(correctUserId);
-        await pageManager.onLoginPage().passwordInputField.fill(incorrectPassword);
+        await pageManager.onLoginPage().idInputField.fill(variables.loginPage.correctUserId);
+        await pageManager.onLoginPage().passwordInputField.fill(variables.loginPage.incorrectPassword);
         await pageManager.onLoginPage().isSignInButtonActive(false);
         await pageManager.onLoginPage().idInputField.clear();
         await pageManager.onLoginPage().passwordInputField.clear();
 
         // incorrect user id and correct password
-        await pageManager.onLoginPage().idInputField.fill(incorrectUserId);
-        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().idInputField.fill(variables.loginPage.incorrectUserId);
+        await pageManager.onLoginPage().passwordInputField.fill(variables.loginPage.correctPassword);
         await pageManager.onLoginPage().isSignInButtonActive(false);
         await pageManager.onLoginPage().idInputField.clear();
         await pageManager.onLoginPage().passwordInputField.clear();
 
         // user id and password are correct
-        await pageManager.onLoginPage().idInputField.fill(correctPassword);
-        await pageManager.onLoginPage().passwordInputField.fill(correctPassword);
+        await pageManager.onLoginPage().idInputField.fill(variables.loginPage.correctUserId);
+        await pageManager.onLoginPage().passwordInputField.fill(variables.loginPage.correctPassword);
         await pageManager.onLoginPage().isSignInButtonActive(true);
     })
 
     test('Tooltip for ID appears on hover on question mark', async({page}) => {
         const pageManager = new PageManager(page);
         await pageManager.onLoginPage().idFieldTooltip.hover();
-        await pageManager.onLoginPage().checkTooltip('id', idTooltipText);
+        await pageManager.onLoginPage().checkTooltip('id', variables.loginPage.idTooltipText);
 
     })
 
     test('Tooltip for Password appears on hover on question mark', async({page}) => {
         const pageManager = new PageManager(page);
         await pageManager.onLoginPage().passwordFieldTooltip.hover()
-        await pageManager.onLoginPage().checkTooltip('password', passwordTooltipText);
+        await pageManager.onLoginPage().checkTooltip('password', variables.loginPage.passwordTooltipText);
     })
 
     test('Redirection to the "More about security" page', async({page}) => {
@@ -228,7 +220,7 @@ test.describe('Mój pulpit page', () => {
         test('Check tooltip', async({page}) => {
             const pageManager = new PageManager(page);
             await pageManager.onMojPulpitPage().szybkiPrzelewTooltipButton.hover();
-            await pageManager.onMojPulpitPage().szybkiPrzelewCheckTooltipText(szybkiPrzelewTooltipText);
+            await pageManager.onMojPulpitPage().szybkiPrzelewCheckTooltipText(variables.szybkiPrzelewPage.TooltipText);
         })
 
         test('All fields are required', async({page}) => {
@@ -258,7 +250,7 @@ test.describe('Mój pulpit page', () => {
             const pageManager = new PageManager(page);
             // await pageManager.onMojPulpitPage().szybkiPrzelewToField.click();
             // await expect(pageManager.onMojPulpitPage().szybkiPrzelewToField.getByRole('option')).toHaveText(szybkiPrzelewDropdownOptions);
-            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().szybkiPrzelewToField, szybkiPrzelewDropdownOptions)
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().szybkiPrzelewToField, variables.szybkiPrzelewPage.DropdownOptions)
         })
 
         test('Correct transfer data was sent', async({page}) => {
@@ -325,7 +317,7 @@ test.describe('Mój pulpit page', () => {
 
         test('Check dropdown options', async({page}) => {
             const pageManager = new PageManager(page);
-            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuToField, doladoawaniaDropboxOptions)
+            await pageManager.onMojPulpitPage().checkDropdownOptions(pageManager.onMojPulpitPage().doladowanieTelefonuToField, variables.doladoawaniaPage.DropboxOptions)
         })
 
         // test('Correct top-up data was sent', async({page}) => {
