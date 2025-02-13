@@ -1,12 +1,10 @@
 import { expect} from '@playwright/test'
 import { test } from '../fixtures.ts'
-import { Variables } from '../pages/variables'
 import { Credentials } from '../pages/credentials.ts'
 import { Tooltips } from '../pages/tooltips.ts'
 import { ErrorMessages } from '../pages/errorMessages.ts'
 import { DropdownOprions } from '../pages/dropdownOptions.ts'
 
-const variables = new Variables();
 const credentials = new Credentials()
 const tooltips = new Tooltips()
 const errorMessages = new ErrorMessages()
