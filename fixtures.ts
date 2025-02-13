@@ -4,7 +4,7 @@ import { Navigation } from './pages/bankPage';
 import { MojPuplitPage } from './pages/mojPolpitPage';
 
 export type Fixtures = {
-    openSite: string
+    setup: string
     signIn: string
     onLoginPage: LoginPage
     onMojPulpitPage: MojPuplitPage
@@ -27,14 +27,14 @@ export const test = base.extend<Fixtures>({
         await use(navigateTo);
     },
 
-    openSite: async({page}, use) => {
+    setup: [async({page}, use) => {
         await page.goto('https://demo-bank.vercel.app/');
         await use('');
-    },
+    },{auto: true}],
 
-    signIn: async({page, openSite}, use) => {
-        await page.locator('#login_id').fill('TestUser');
-        await page.locator('#login_password').fill('TestPass');
+    signIn: async({page, onLoginPage}, use) => {
+        await onLoginPage.idInputField.fill('TestUser');
+        await onLoginPage.passwordInputField.fill('TestPass');
         await page.getByRole('button').click();
         await use('');
     }

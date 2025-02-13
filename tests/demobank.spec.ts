@@ -6,19 +6,19 @@ const variables = new Variables();
 
 test.describe('Login Page', () => {
 
-    test('The ID field is required', async({page, openSite, onLoginPage}) => {
+    test('The ID field is required', async({page, onLoginPage}) => {
         await onLoginPage.idInputField.click();
         await onLoginPage.passwordInputField.click();
         await onLoginPage.checkErrorMessage('id', 'pole wymagane');
     })
 
-    test('The Password field is required', async({page, openSite, onLoginPage}) => {
+    test('The Password field is required', async({page, onLoginPage}) => {
         await onLoginPage.passwordInputField.click();
         await onLoginPage.idInputField.click();
         await onLoginPage.checkErrorMessage('password', 'pole wymagane');
     })
 
-    test('ID must be 8 characters long', async({page, openSite, onLoginPage}) => {
+    test('ID must be 8 characters long', async({page, onLoginPage}) => {
         await onLoginPage.idInputField.fill(variables.loginPage.incorrectUserId);
         await onLoginPage.signInButton.click({force: true});
         await onLoginPage.checkErrorMessage('id', 'identyfikator ma min. 8 znaków')
@@ -29,7 +29,7 @@ test.describe('Login Page', () => {
         await onLoginPage.checkFieldHighlight('id', 'is-valid')
     })
 
-    test('Password must be 8 characters long', async({page, openSite, onLoginPage}) => {
+    test('Password must be 8 characters long', async({page, onLoginPage}) => {
         await onLoginPage.passwordInputField.fill(variables.loginPage.incorrectPassword);
         await onLoginPage.signInButton.click({force: true});
         await onLoginPage.checkErrorMessage('password', 'hasło ma min. 8 znaków')
@@ -40,7 +40,7 @@ test.describe('Login Page', () => {
         await onLoginPage.checkFieldHighlight('password', 'is-valid')
     })
 
-    test('Sign In button isn\'t clickable untill all correct data provided', async({page, openSite, onLoginPage}) => {   
+    test('Sign In button isn\'t clickable untill all correct data provided', async({page, onLoginPage}) => {   
         //both fields are empty
         await onLoginPage.isSignInButtonActive(false);
 
@@ -74,24 +74,24 @@ test.describe('Login Page', () => {
         await onLoginPage.isSignInButtonActive(true);
     })
 
-    test('Tooltip for ID appears on hover on question mark', async({page, openSite, onLoginPage}) => {
+    test('Tooltip for ID appears on hover on question mark', async({page, onLoginPage}) => {
         await onLoginPage.idFieldTooltip.hover();
         await onLoginPage.checkTooltip('id', variables.loginPage.idTooltipText);
 
     })
 
-    test('Tooltip for Password appears on hover on question mark', async({page, openSite, onLoginPage}) => {
+    test('Tooltip for Password appears on hover on question mark', async({page, onLoginPage}) => {
         await onLoginPage.passwordFieldTooltip.hover()
         await onLoginPage.checkTooltip('password', variables.loginPage.passwordTooltipText);
     })
 
-    test('Redirection to the "More about security" page', async({page, openSite, onLoginPage}) => {
+    test('Redirection to the "More about security" page', async({page, onLoginPage}) => {
         await expect(onLoginPage.moreAboutSecurityButton).toBeEnabled();
         await onLoginPage.moreAboutSecurityButton.click();
         await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
     })
 
-    test('Rediresction from "More about security" to the "Login" page', async({page, openSite, onLoginPage}) => {
+    test('Rediresction from "More about security" to the "Login" page', async({page, onLoginPage}) => {
         await onLoginPage.moreAboutSecurityButton.click();
         await expect(page.locator('.login-highlight').first()).toHaveText('Pamiętaj o swoim bezpieczeństwie!');
         await page.getByText('do strony logowania').click();

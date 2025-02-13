@@ -19,13 +19,6 @@ export class LoginPage {
         this.signInButton = page.getByText('zaloguj')
     }
 
-     async signIn () {
-        await this.page.goto('https://demo-bank.vercel.app/');
-        await this.page.locator('#login_id').fill('TestUser');
-        await this.page.locator('#login_password').fill('TestPass');
-        await this.page.getByRole('button').click();
-    }
-
     /**
      * Thish method checks Login Page fields error message
      * @param fieldName - "id" - for the id field, "password" - for the password field
