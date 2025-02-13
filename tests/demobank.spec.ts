@@ -1,8 +1,16 @@
 import { expect} from '@playwright/test'
 import { test } from '../fixtures.ts'
 import { Variables } from '../pages/variables'
+import { Credentials } from '../pages/credentials.ts'
+import { Tooltips } from '../pages/tooltips.ts'
+import { ErrorMessages } from '../pages/errorMessages.ts'
+import { DropdownOprions } from '../pages/dropdownOptions.ts'
 
 const variables = new Variables();
+const credentials = new Credentials()
+const tooltips = new Tooltips()
+const errorMessages = new ErrorMessages()
+const dropdownOptions = new DropdownOprions()
 
 test.describe('Login Page', () => {
 
@@ -19,23 +27,23 @@ test.describe('Login Page', () => {
     })
 
     test('ID must be 8 characters long', async({page, onLoginPage}) => {
-        await onLoginPage.idInputField.fill(variables.loginPage.incorrectUserId);
+        await onLoginPage.idInputField.fill(credentials.incorrectUserId);
         await onLoginPage.signInButton.click({force: true});
         await onLoginPage.checkErrorMessage('id', 'identyfikator ma min. 8 znaków')
         await onLoginPage.checkFieldHighlight('id', 'has-error')
 
-        await onLoginPage.idInputField.fill(variables.loginPage.correctUserId);
+        await onLoginPage.idInputField.fill(credentials.correctUserId);
         await onLoginPage.signInButton.click({force: true});
         await onLoginPage.checkFieldHighlight('id', 'is-valid')
     })
 
     test('Password must be 8 characters long', async({page, onLoginPage}) => {
-        await onLoginPage.passwordInputField.fill(variables.loginPage.incorrectPassword);
+        await onLoginPage.passwordInputField.fill(credentials.incorrectPassword);
         await onLoginPage.signInButton.click({force: true});
         await onLoginPage.checkErrorMessage('password', 'hasło ma min. 8 znaków')
         await onLoginPage.checkFieldHighlight('password', 'has-error')
 
-        await onLoginPage.passwordInputField.fill(variables.loginPage.correctPassword);
+        await onLoginPage.passwordInputField.fill(credentials.correctPassword);
         await onLoginPage.signInButton.click({force: true});
         await onLoginPage.checkFieldHighlight('password', 'is-valid')
     })
@@ -45,44 +53,44 @@ test.describe('Login Page', () => {
         await onLoginPage.isSignInButtonActive(false);
 
         // only id provided
-        await onLoginPage.idInputField.fill(variables.loginPage.correctUserId);
+        await onLoginPage.idInputField.fill(credentials.correctUserId);
         await onLoginPage.isSignInButtonActive(false);
         await onLoginPage.idInputField.clear();
 
         // only password provided
-        await onLoginPage.passwordInputField.fill(variables.loginPage.correctPassword);
+        await onLoginPage.passwordInputField.fill(credentials.correctPassword);
         await onLoginPage.isSignInButtonActive(false);
         await onLoginPage.passwordInputField.clear();
 
         // correct user id and incorrect password
-        await onLoginPage.idInputField.fill(variables.loginPage.correctUserId);
-        await onLoginPage.passwordInputField.fill(variables.loginPage.incorrectPassword);
+        await onLoginPage.idInputField.fill(credentials.correctUserId);
+        await onLoginPage.passwordInputField.fill(credentials.incorrectPassword);
         await onLoginPage.isSignInButtonActive(false);
         await onLoginPage.idInputField.clear();
         await onLoginPage.passwordInputField.clear();
 
         // incorrect user id and correct password
-        await onLoginPage.idInputField.fill(variables.loginPage.incorrectUserId);
-        await onLoginPage.passwordInputField.fill(variables.loginPage.correctPassword);
+        await onLoginPage.idInputField.fill(credentials.incorrectPassword);
+        await onLoginPage.passwordInputField.fill(credentials.correctPassword);
         await onLoginPage.isSignInButtonActive(false);
         await onLoginPage.idInputField.clear();
         await onLoginPage.passwordInputField.clear();
 
         // user id and password are correct
-        await onLoginPage.idInputField.fill(variables.loginPage.correctUserId);
-        await onLoginPage.passwordInputField.fill(variables.loginPage.correctPassword);
+        await onLoginPage.idInputField.fill(credentials.correctUserId);
+        await onLoginPage.passwordInputField.fill(credentials.correctPassword);
         await onLoginPage.isSignInButtonActive(true);
     })
 
     test('Tooltip for ID appears on hover on question mark', async({page, onLoginPage}) => {
         await onLoginPage.idFieldTooltip.hover();
-        await onLoginPage.checkTooltip('id', variables.loginPage.idTooltipText);
+        await onLoginPage.checkTooltip('id', tooltips.loginPageIdTooltipText);
 
     })
 
     test('Tooltip for Password appears on hover on question mark', async({page, onLoginPage}) => {
         await onLoginPage.passwordFieldTooltip.hover()
-        await onLoginPage.checkTooltip('password', variables.loginPage.passwordTooltipText);
+        await onLoginPage.checkTooltip('password', tooltips.loginPagePasswordTooltipText);
     })
 
     test('Redirection to the "More about security" page', async({page, onLoginPage}) => {
@@ -182,7 +190,7 @@ test.describe('Mój pulpit page', () => {
         test('Check tooltip', async({page, signIn, onMojPulpitPage}) => {
             await page.waitForLoadState('load');
             await onMojPulpitPage.szybkiPrzelewTooltipButton.hover();
-            await onMojPulpitPage.checkTooltipText(onMojPulpitPage.szybkiPrzelewTooltipButton, variables.szybkiPrzelewPage.tooltipText);
+            await onMojPulpitPage.checkTooltipText(onMojPulpitPage.szybkiPrzelewTooltipButton, tooltips.szybkiPrzelewTooltipText);
         })
 
         test('All fields are required', async({page, signIn, onMojPulpitPage}) => {
@@ -207,7 +215,7 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Check dropdown options', async({page, signIn, onMojPulpitPage}) => {
-            await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.szybkiPrzelewToField, variables.szybkiPrzelewPage.dropdownOptions)
+            await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.szybkiPrzelewToField, dropdownOptions.szybkiPrzelewDropdownOptions)
         })
 
         test('Correct transfer data was sent', async({page, signIn, onMojPulpitPage}) => {
@@ -272,7 +280,7 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Check dropdown options', async({page, signIn, onMojPulpitPage}) => {
-            await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.doladowanieTelefonuToField, variables.doladoawaniaPage.dropboxOptions)
+            await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.doladowanieTelefonuToField, dropdownOptions.doladoawaniaDropboxOptions)
         })
 
         test('Correct top-up data was sent', async({page, signIn, onMojPulpitPage}) => {
@@ -291,34 +299,34 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Tooltip apears if 500, 502, 503 numbers selected', async({page, signIn, onMojPulpitPage}) => {
-            for (const phoneNumber of variables.doladoawaniaPage.telephoneNumbersWithoutDefaultTopUpValue){
+            for (const phoneNumber of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
                 await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, phoneNumber);
                 expect(await onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip.isVisible()).toBeTruthy();
             }
         })
 
         test('Check tooltip', async({page, signIn, onMojPulpitPage}) => {
-            for (const phoneNumber of variables.doladoawaniaPage.telephoneNumbersWithoutDefaultTopUpValue){
+            for (const phoneNumber of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
                 await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, phoneNumber);
                 await onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip.hover();
                 expect(await onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip.isVisible()).toBeTruthy();
                 if (phoneNumber === '503 xxx xxx'){
-                    await onMojPulpitPage.checkTooltipText(onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip, variables.doladoawaniaPage.doladowanieTelefonuTopUpInfoTooltipText500);
+                    await onMojPulpitPage.checkTooltipText(onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip, tooltips.doladowanieTelefonuTopUpInfoTooltipText500);
                 } else {
-                    await onMojPulpitPage.checkTooltipText(onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip, variables.doladoawaniaPage.doladowanieTelefonuTopUpInfoTooltipText150);
+                    await onMojPulpitPage.checkTooltipText(onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip, tooltips.doladowanieTelefonuTopUpInfoTooltipText150);
                 }
             }
         } )
 
         test('Boundary for the amount field for numbers 500, 502, 503', async ({page, signIn, onMojPulpitPage}) => {
-            for (const phoneNumber of variables.doladoawaniaPage.telephoneNumbersWithoutDefaultTopUpValue){
+            for (const phoneNumber of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
                 await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, phoneNumber);
                 if (phoneNumber === '503 xxx xxx'){
                     // valid values range is 5 - 500
 
                     //check lowest minus 1
                     await onMojPulpitPage.doladowanieTelefonuProvideDataToAmountField('4');
-                    await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooLowErrorMessage, 'has-error');
+                    await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, errorMessages.doladowanieTelefonuAmountTooLowErrorMessage, 'has-error');
                     await onMojPulpitPage.doladowanieTelefonuAmountField.getByRole('textbox').clear();
                     
                     //check lowest
@@ -338,14 +346,14 @@ test.describe('Mój pulpit page', () => {
 
                     //check highect plust 1
                     await onMojPulpitPage.doladowanieTelefonuProvideDataToAmountField('501');
-                    await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooHighErrorMessag500, 'has-error');
+                    await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, errorMessages.doladowanieTelefonuAmountTooHighErrorMessag500, 'has-error');
                     await onMojPulpitPage.doladowanieTelefonuAmountField.getByRole('textbox').clear();
                 } else {
                     // valid values range is 5 - 150
 
                      //check lowest minus 1
                      await onMojPulpitPage.doladowanieTelefonuProvideDataToAmountField('4');
-                     await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooLowErrorMessage, 'has-error');
+                     await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, errorMessages.doladowanieTelefonuAmountTooLowErrorMessage, 'has-error');
                      await onMojPulpitPage.doladowanieTelefonuAmountField.getByRole('textbox').clear();
                      
                      //check lowest
@@ -365,21 +373,21 @@ test.describe('Mój pulpit page', () => {
  
                      //check highect plust 1
                      await onMojPulpitPage.doladowanieTelefonuProvideDataToAmountField('151');
-                     await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, variables.doladoawaniaPage.amountTooHighErrorMessag150, 'has-error');
+                     await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, errorMessages.doladowanieTelefonuAmountTooHighErrorMessag150, 'has-error');
                      await onMojPulpitPage.doladowanieTelefonuAmountField.getByRole('textbox').clear();
                 }
             }
         })
 
         test('Select for the Amount appers if 504 number selected', async({page, signIn, onMojPulpitPage}) => {
-            await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, variables.doladoawaniaPage.telephoneNumbersWithDefaultTopUpValue[0]);
+            await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, dropdownOptions.doladoawaniaTelephoneNumbersWithDefaultTopUpValue[0]);
             await expect(onMojPulpitPage.doladowanieTelefonuAmountField.locator('#uniform-widget_1_topup_amount')).toHaveClass('selector fixedWidth')
         })
 
         test('Check options at the Amout dropdown', async({page, signIn, onMojPulpitPage}) => {
-            await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, variables.doladoawaniaPage.telephoneNumbersWithDefaultTopUpValue[0]);
+            await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, dropdownOptions.doladoawaniaTelephoneNumbersWithDefaultTopUpValue[0]);
             await onMojPulpitPage.doladowanieTelefonuAmountField.click();
-            await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.doladowanieTelefonuAmountField, variables.doladoawaniaPage.amoutDropdownValues)
+            await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.doladowanieTelefonuAmountField, dropdownOptions.doladoawaniaAmoutDropdownValues)
         })
     })
 
