@@ -2,7 +2,9 @@
   "name": "playwright-basics",
   "version": "1.0.0",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "runTest": "npx playwright test demobank.spec.ts --project=chromium"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
