@@ -43,7 +43,6 @@ test.describe('Login Page', () => {
 
         await onLoginPage.passwordInputField.fill(credentials.correctPassword);
         await onLoginPage.signInButton.click({force: true});
-        await page.waitForTimeout(1000)
         await onLoginPage.checkFieldHighlight('password', 'is-valid')
     })
 
