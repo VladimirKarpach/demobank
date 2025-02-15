@@ -38,12 +38,13 @@ test.describe('Login Page', () => {
     test('Password must be 8 characters long', async({page, onLoginPage}) => {
         await onLoginPage.passwordInputField.fill(credentials.incorrectPassword);
         await onLoginPage.signInButton.click({force: true});
-        await onLoginPage.checkErrorMessage('password', 'hasło ma min. 8 znaków')
-        await onLoginPage.checkFieldHighlight('password', 'has-error')
+        await onLoginPage.checkErrorMessage('password', 'hasło ma min. 8 znaków');
+        await onLoginPage.checkFieldHighlight('password', 'has-error');
+        await onLoginPage.passwordInputField.clear();
 
         await onLoginPage.passwordInputField.fill(credentials.correctPassword);
         await onLoginPage.signInButton.click({force: true});
-        await onLoginPage.checkFieldHighlight('password', 'is-valid')
+        await onLoginPage.checkFieldHighlight('password', 'is-valid');
     })
 
     test('Sign In button isn\'t clickable untill all correct data provided', async({page, onLoginPage}) => {   
