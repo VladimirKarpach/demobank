@@ -1,15 +1,17 @@
-import { expect} from '@playwright/test'
+import { expect, Locator} from '@playwright/test'
 import { test } from '../fixtures.ts'
 import { Credentials } from '../pages/credentials.ts'
 import { Tooltips } from '../pages/tooltips.ts'
 import { ErrorMessages } from '../pages/errorMessages.ts'
 import { DropdownOprions } from '../pages/dropdownOptions.ts'
-import { time } from 'console'
+import { DataToCompare } from '../pages/dataToCompare.ts'
+import { sign } from 'crypto'
 
 const credentials = new Credentials()
 const tooltips = new Tooltips()
 const errorMessages = new ErrorMessages()
 const dropdownOptions = new DropdownOprions()
+const dataToCompare = new DataToCompare()
 
 test.describe('Login Page', () => {
 
@@ -471,8 +473,50 @@ test.describe('Mój pulpit page', () => {
             expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeFalsy();
             expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeFalsy();
             expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeFalsy();
+        })
+    })
 
-            console.log('Hell World!')
+    test.describe ('Last operations', () => {
+        test('Section has correct header', async({page, signIn, onMojPulpitPage}) => {
+            const headerText = await onMojPulpitPage.lastOperationsBox.locator('.wborder').textContent();
+            expect(headerText).toEqual('ostatnie operacje');
+        })
+
+        test('Verify operations dates', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.lastOperationsBox.locator('tr').first().waitFor();
+            let numberOfRows = await onMojPulpitPage.lastOperationsBox.locator('tr').count();
+            const datesFromBox: any[] = [];
+            for (let i = 0; i < numberOfRows; i++){
+                let date  = await onMojPulpitPage.lastOperationsBox.locator('tr').nth(i).locator('td').first().textContent();
+                datesFromBox.push(date);
+            }
+            expect(datesFromBox).toEqual(dataToCompare.lastOperationsDates);
+        })
+
+        test('Verify operations titles', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.lastOperationsBox.locator('tr').first().waitFor();
+            let numberOfRows = await onMojPulpitPage.lastOperationsBox.locator('tr').count();
+            const titlesFromBox: any[] = [];
+            for (let i = 0; i < numberOfRows; i++){
+                let name
+                name  = await onMojPulpitPage.lastOperationsBox.locator('tr').nth(i).locator('td').nth(2).locator('.short').textContent();
+                name = name.replace(/\s+/g, '').trim();
+                titlesFromBox.push(name);
+            }
+            expect(titlesFromBox).toEqual(dataToCompare.lastOperationsNames);
+        })
+
+        test('Verify operations amount', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.lastOperationsBox.locator('tr').first().waitFor();
+            let numberOfRows = await onMojPulpitPage.lastOperationsBox.locator('tr').count();
+            const amountFromBox: any[] = [];
+            for (let i = 0; i < numberOfRows; i++){
+                let amount
+                amount  = await onMojPulpitPage.lastOperationsBox.locator('tr').nth(i).locator('td').nth(3).locator('.fancy-amount').textContent();
+                amount = amount.replace(/\s+/g, '').trim();
+                amountFromBox.push(amount);
+            }
+            expect(amountFromBox).toEqual(dataToCompare.lastOperationsAmount);
         })
     })
 })

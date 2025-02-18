@@ -23,6 +23,7 @@ export class MojPuplitPage {
     kontoNaZycieLimitKredytowyField: Locator
     kontoNaZyciePosiadaczField: Locator
     kontoNaZycieMoreButton: Locator
+    lastOperationsBox: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -47,6 +48,7 @@ export class MojPuplitPage {
         this.kontoNaZycieLimitKredytowyField = this.kontoNaZycieBox.locator('.form-row', {hasText: 'limit'})
         this.kontoNaZyciePosiadaczField = this.kontoNaZycieBox.locator('.form-row', {hasText: 'posiadacz'})
         this.kontoNaZycieMoreButton = this.kontoNaZycieBox.locator('.btn')
+        this.lastOperationsBox = page.locator('.box-white', {hasText: 'ostatnie operacje'})
     }
 
     async checkTooltipText(fieldName, tooltipText){
