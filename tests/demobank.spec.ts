@@ -4,6 +4,7 @@ import { Credentials } from '../pages/credentials.ts'
 import { Tooltips } from '../pages/tooltips.ts'
 import { ErrorMessages } from '../pages/errorMessages.ts'
 import { DropdownOprions } from '../pages/dropdownOptions.ts'
+import { time } from 'console'
 
 const credentials = new Credentials()
 const tooltips = new Tooltips()
@@ -398,6 +399,7 @@ test.describe('Mój pulpit page', () => {
             expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeFalsy();
         })
         test('Section can be expanded by click on it', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForLoadState('load');
             await onMojPulpitPage.kontoNaZycieBox.click();
             expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
             expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
@@ -405,8 +407,8 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Section can be expended by click on the More button', async({page, signIn, onMojPulpitPage}) => {
-            await page.locator('.row', {hasText: '41 4100 1111 1111 1111 1111 0000'}).locator('.table-grid-9').click()
-            await onMojPulpitPage.kontoNaZycieMoreButton.click()
+            await page.waitForLoadState('load');
+            await onMojPulpitPage.kontoNaZycieMoreButton.click();
             expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
             expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
             expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
@@ -425,8 +427,8 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Check blocked amout', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForLoadState('load');
             await onMojPulpitPage.kontoNaZycieBox.click();
-            await page.waitForTimeout(100);
             expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
             let blockedAmount
             blockedAmount = await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.locator('.fancy-amount').textContent();
@@ -435,8 +437,8 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Ceck the credit limit', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForLoadState('load');
             await onMojPulpitPage.kontoNaZycieBox.click();
-            await page.waitForTimeout(100);
             expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
             let creditLimit
             creditLimit = await onMojPulpitPage.kontoNaZycieLimitKredytowyField.locator('.fancy-amount').textContent();
@@ -445,8 +447,8 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Check the account owner', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForLoadState('load');
             await onMojPulpitPage.kontoNaZycieBox.click();
-            await page.waitForTimeout(100);
             expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
             let owner
             owner = await onMojPulpitPage.kontoNaZyciePosiadaczField.locator('#owner').textContent();
@@ -455,9 +457,10 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Verify that block collapsed by click on it', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForLoadState('load');
+
             // expand section
-            await onMojPulpitPage.kontoNaZycieBox.click();
-            await page.waitForTimeout(100);
+            await onMojPulpitPage.kontoNaZycieMoreButton.click();
             expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
             expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
             expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
@@ -468,6 +471,8 @@ test.describe('Mój pulpit page', () => {
             expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeFalsy();
             expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeFalsy();
             expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeFalsy();
+
+            console.log('Hell World!')
         })
     })
 })
