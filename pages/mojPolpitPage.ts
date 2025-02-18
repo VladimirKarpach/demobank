@@ -18,6 +18,11 @@ export class MojPuplitPage {
     doladowanieTelefonuTransferCompletedDialog: Locator
     doladowanieTelefonuTransferCompletedDialogCocntent: Locator
     doladowanieTelefonuTopUpInfoTooltip: Locator
+    kontoNaZycieBox: Locator
+    kontoNaZycieBlokadyNaKoncieField: Locator
+    kontoNaZycieLimitKredytowyField: Locator
+    kontoNaZyciePosiadaczField: Locator
+    kontoNaZycieMoreButton: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -37,6 +42,11 @@ export class MojPuplitPage {
         this.doladowanieTelefonuTransferCompletedDialog = page.getByRole('dialog')
         this.doladowanieTelefonuTransferCompletedDialogCocntent = this.doladowanieTelefonuTransferCompletedDialog.locator('.hide.ui-widget-content')
         this.doladowanieTelefonuTopUpInfoTooltip = this.doladowanieTelefonuBox.locator('.tooltip')
+        this.kontoNaZycieBox = page.locator('.row', {hasText: '41 4100 1111 1111 1111 1111 0000'})
+        this.kontoNaZycieBlokadyNaKoncieField = this.kontoNaZycieBox.locator('.form-row', {hasText: 'blokady'})
+        this.kontoNaZycieLimitKredytowyField = this.kontoNaZycieBox.locator('.form-row', {hasText: 'limit'})
+        this.kontoNaZyciePosiadaczField = this.kontoNaZycieBox.locator('.form-row', {hasText: 'posiadacz'})
+        this.kontoNaZycieMoreButton = this.kontoNaZycieBox.locator('.btn')
     }
 
     async checkTooltipText(fieldName, tooltipText){

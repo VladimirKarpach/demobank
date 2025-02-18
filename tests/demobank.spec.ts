@@ -391,37 +391,84 @@ test.describe('Mój pulpit page', () => {
         })
     })
 
-    // test.describe('Konto na życie', () => {
-    //     test('Section collapsed by default', async({page}) => {
+    test.describe('Konto na życie', () => {
+        test('Section collapsed by default', async({page, signIn, onMojPulpitPage}) => {
+            expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeFalsy();
+            expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeFalsy();
+            expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeFalsy();
+        })
+        test('Section can be expanded by click on it', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.kontoNaZycieBox.click();
+            expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
+            expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
+            expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
+        })
 
-    //     })
-    //     test('Section can be expended by click on it', async({page}) => {
+        test('Section can be expended by click on the More button', async({page, signIn, onMojPulpitPage}) => {
+            await page.locator('.row', {hasText: '41 4100 1111 1111 1111 1111 0000'}).locator('.table-grid-9').click()
+            await onMojPulpitPage.kontoNaZycieMoreButton.click()
+            expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
+            expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
+            expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
+        })
 
-    //     })
+        test('Check account number', async({page, signIn, onMojPulpitPage}) => {
+            const accountNumber = await onMojPulpitPage.kontoNaZycieBox.locator('#account_number').textContent();
+            expect(accountNumber).toContain('41 4100 1111 1111 1111 1111 0000');
+        })
 
-    //     test('Section can be expended by click on the More button', async({page}) => {
+        test('Check available amount', async({page, signIn, onMojPulpitPage}) => {
+            let availableAmount
+            availableAmount = await onMojPulpitPage.kontoNaZycieBox.locator('.table-header .fancy-amount').textContent();
+            availableAmount = availableAmount.replace(/\s+/g, '').trim();
+            expect(availableAmount).toContain('13159,20PLN');
+        })
 
-    //     })
+        test('Check blocked amout', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.kontoNaZycieBox.click();
+            await page.waitForTimeout(100);
+            expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
+            let blockedAmount
+            blockedAmount = await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.locator('.fancy-amount').textContent();
+            blockedAmount = blockedAmount.replace(/\s+/g, '').trim();
+            expect(blockedAmount).toContain('300,00PLN');
+        })
 
-    //     test('Check account number', async({page}) => {
+        test('Ceck the credit limit', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.kontoNaZycieBox.click();
+            await page.waitForTimeout(100);
+            expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
+            let creditLimit
+            creditLimit = await onMojPulpitPage.kontoNaZycieLimitKredytowyField.locator('.fancy-amount').textContent();
+            creditLimit = creditLimit.replace(/\s+/g, '').trim();
+            expect(creditLimit).toContain('10000,00PLN');
+        })
 
-    //     })
+        test('Check the account owner', async({page, signIn, onMojPulpitPage}) => {
+            await onMojPulpitPage.kontoNaZycieBox.click();
+            await page.waitForTimeout(100);
+            expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
+            let owner
+            owner = await onMojPulpitPage.kontoNaZyciePosiadaczField.locator('#owner').textContent();
+            owner = owner.replace(/\s+/g, ' ').trim('');
+            expect(owner).toContain('Jan Demobankowy');
+        })
 
-    //     test('Check available amount', async({page}) => {
+        test('Verify that block collapsed by click on it', async({page, signIn, onMojPulpitPage}) => {
+            // expand section
+            await onMojPulpitPage.kontoNaZycieBox.click();
+            await page.waitForTimeout(100);
+            expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeTruthy();
+            expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeTruthy();
+            expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeTruthy();
 
-    //     })
-
-    //     test('Check blocked amout', async({page}) => {
-
-    //     })
-
-    //     test('Ceck the credit lomit', async({page}) => {
-
-    //     })
-
-    //     test('Check the account owner', async({page}) => {
-
-    //     })
-    // })
+            //collapse section
+            await onMojPulpitPage.kontoNaZycieBox.click();
+            await page.waitForTimeout(500);
+            expect(await onMojPulpitPage.kontoNaZycieBlokadyNaKoncieField.isVisible()).toBeFalsy();
+            expect(await onMojPulpitPage.kontoNaZycieLimitKredytowyField.isVisible()).toBeFalsy();
+            expect(await onMojPulpitPage.kontoNaZyciePosiadaczField.isVisible()).toBeFalsy();
+        })
+    })
 })
 
