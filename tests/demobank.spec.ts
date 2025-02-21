@@ -553,6 +553,7 @@ test.describe('Generu przelew page', () => {
         await onGenerateTransferPage.checkFieldErrorMessage(onGenerateTransferPage.toAcoountField, errorMessages.generateTransferAccountNumberTooShort, 'has-error');
         await onGenerateTransferPage.toAcoountField.getByRole('textbox').fill(validAccountNumber);
         await onGenerateTransferPage.availableAmountLabel.click({force: true});
+        await page.waitForTimeout(500);
         await onGenerateTransferPage.checkFieldHighlight(onGenerateTransferPage.toAcoountField, 'is-valid');
         
     })
@@ -564,6 +565,25 @@ test.describe('Generu przelew page', () => {
     test('Title field is required', async({navigateToTransferGenerationPage, onGenerateTransferPage}) => {
         onGenerateTransferPage.titleField.getByRole('textbox').clear();
         await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.titleField, 'Test Title', 'pole wymagane');
+    })
+
+    test('Address Line 1 is oprional', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        await page.waitForEvent('load');
+        await onGenerateTransferPage.addressSection.click();
+        await onGenerateTransferPage.isInputFiedlRequred(false, onGenerateTransferPage.addressLine1, 'Address Line 1', '');
+  
+    })
+
+    test('Address Line 2 is oprional', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        await page.waitForEvent('load');
+        await onGenerateTransferPage.addressSection.click();
+        await onGenerateTransferPage.isInputFiedlRequred(false, onGenerateTransferPage.addressLine1, 'Address Line 2', '');
+    })
+
+    test('Address Line 3 is oprional', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        page.waitForEvent('load');
+        await onGenerateTransferPage.addressSection.click();
+        await onGenerateTransferPage.isInputFiedlRequred(false, onGenerateTransferPage.addressLine1, 'Address Line 3', '');
     })
 })
 

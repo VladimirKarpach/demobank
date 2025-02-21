@@ -9,6 +9,10 @@ export class GenerateTransferPage {
     toAcoountField: Locator
     amountField: Locator
     titleField: Locator
+    addressLine1: Locator
+    addressLine2: Locator
+    addressLine3: Locator
+    addressSection: Locator
 
     constructor (page: Page) {
         this.page = page
@@ -18,6 +22,11 @@ export class GenerateTransferPage {
         this.toAcoountField = page.locator('.form-row', {hasText: 'na rachunek'})
         this.amountField = page.locator('.form-row', {hasText: 'kwota'})
         this.titleField = page.locator('.form-row', {hasText: 'tytu'})
+        this.addressLine1 = page.locator('#form_address').locator('.form-row').nth(0)
+        this.addressLine2 = page.locator('#form_address').locator('.form-row').nth(1)
+        this.addressLine3 = page.locator('#form_address').locator('.form-row').nth(2)
+        this.addressSection = page.locator('.form-row', {hasText: 'adres (opcjonalnie)'}).locator('.showhide').first()
+
     }
 
     /**
@@ -47,7 +56,7 @@ export class GenerateTransferPage {
      * @param required true - field is required, false - field is not required
      * @param field - field locator
      * @param inputText - text which will be entered to a field
-     * @param errorMessage - error message for the required field
+     * @param errorMessage - error message for the required field. Empty string for the optional foelds
      */
     async isInputFiedlRequred (required: boolean, field: Locator, inputText:string, errorMessage: string){
         if(required){
@@ -59,13 +68,14 @@ export class GenerateTransferPage {
             await this.availableAmountLabel.click({force: true});
             await this.checkFieldHighlight(field, 'is-valid');
         } else {
-            await this.page.waitForEvent('load');
             await field.getByRole('textbox').click();
             await this.availableAmountLabel.click({force: true});
-            await this.checkFieldHighlight(field, 'is-valid');
+            let className = await field.locator('.field').first().getAttribute('class');
+            expect(className).not.toContain('has-error')
             await field.getByRole('textbox').fill(inputText);
             await this.availableAmountLabel.click({force: true});
-            await this.checkFieldHighlight(field, 'is-valid');
+            className = await field.locator('.field').first().getAttribute('class');
+            expect(className).not.toContain('is-valid')
         }
         
     }
