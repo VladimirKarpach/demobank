@@ -2,13 +2,16 @@ import {test as base} from '@playwright/test'
 import { LoginPage } from './pages/loginPage';
 import { Navigation } from './pages/bankPage';
 import { MojPuplitPage } from './pages/mojPolpitPage';
+import { GenerateTransferPage } from './pages/generateTransferPage';
 
 export type Fixtures = {
     setup: string
     signIn: string
+    navigateToTransferGenerationPage: string
     onLoginPage: LoginPage
     onMojPulpitPage: MojPuplitPage
     navigateTo: Navigation
+    onGenerateTransferPage: GenerateTransferPage
 }
 
 export const test = base.extend<Fixtures>({
@@ -27,6 +30,11 @@ export const test = base.extend<Fixtures>({
         await use(navigateTo);
     },
 
+    onGenerateTransferPage: async({page}, use) => {
+        const onGenerateTransferPage = new GenerateTransferPage(page);
+        await use(onGenerateTransferPage);
+    },
+
     setup: [async({page}, use) => {
         await page.goto('https://demo-bank.vercel.app/');
         await use('');
@@ -36,6 +44,11 @@ export const test = base.extend<Fixtures>({
         await onLoginPage.idInputField.fill('TestUser');
         await onLoginPage.passwordInputField.fill('TestPass');
         await page.getByRole('button').click();
+        await use('');
+    },
+
+    navigateToTransferGenerationPage: async({page, signIn, navigateTo}, use) => {
+        await navigateTo.generujPrzelewPage();
         await use('');
     }
 })

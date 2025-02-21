@@ -5,7 +5,8 @@ import { Tooltips } from '../pages/tooltips.ts'
 import { ErrorMessages } from '../pages/errorMessages.ts'
 import { DropdownOprions } from '../pages/dropdownOptions.ts'
 import { DataToCompare } from '../pages/dataToCompare.ts'
-import { sign } from 'crypto'
+import { on } from 'node:stream'
+
 
 const credentials = new Credentials()
 const tooltips = new Tooltips()
@@ -518,6 +519,51 @@ test.describe('Mój pulpit page', () => {
             }
             expect(amountFromBox).toEqual(dataToCompare.lastOperationsAmount);
         })
+    })
+})
+
+test.describe('Generu przelew page', () => {
+
+    test('Account field is required', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        await page.waitForEvent('load');
+        await onGenerateTransferPage.checkFieldErrorMessage(onGenerateTransferPage.accountField, 'pole wymagane', 'has-error');
+        await onGenerateTransferPage.accountField.locator('select').selectOption({index:1});
+        await onGenerateTransferPage.checkFieldHighlight(onGenerateTransferPage.accountField, 'is-valid');
+    })
+
+    test('Receiver field is required', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.receiverFiled, 'Test Name', 'pole wymagane');
+
+    })
+
+    test('To Account field is reqired', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        const validAccountNumber = Math.round(Math.random() * 1000000000000000000000).toString()
+        await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.toAcoountField, validAccountNumber, 'pole wymagane');
+
+    })
+
+    test('Receiver account numner must be 26 characters long', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        const invalidAccountNumber = Math.round(Math.random() * 100000000000000000000).toString();
+        const validAccountNumber = Math.round(Math.random() * 1000000000000000000000).toString();
+
+        await page.waitForEvent('load');
+        // there is a bug provided ot the field. Field become valid if 21 dicits provided. In real live this test will fail and find a bug
+        await onGenerateTransferPage.toAcoountField.getByRole('textbox').fill(invalidAccountNumber);
+        await onGenerateTransferPage.availableAmountLabel.click({force: true});
+        await onGenerateTransferPage.checkFieldErrorMessage(onGenerateTransferPage.toAcoountField, errorMessages.generateTransferAccountNumberTooShort, 'has-error');
+        await onGenerateTransferPage.toAcoountField.getByRole('textbox').fill(validAccountNumber);
+        await onGenerateTransferPage.availableAmountLabel.click({force: true});
+        await onGenerateTransferPage.checkFieldHighlight(onGenerateTransferPage.toAcoountField, 'is-valid');
+        
+    })
+
+    test('Amount field is required', async({navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.amountField, '300', 'pole wymagane');
+    })
+
+    test('Title field is required', async({navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        onGenerateTransferPage.titleField.getByRole('textbox').clear();
+        await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.titleField, 'Test Title', 'pole wymagane');
     })
 })
 
