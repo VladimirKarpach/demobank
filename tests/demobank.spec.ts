@@ -562,6 +562,25 @@ test.describe('Generu przelew page', () => {
         await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.amountField, '300', 'pole wymagane');
     })
 
+    test('Amount can\'t be greater that available amout', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        const availableAmount: any = await onGenerateTransferPage.availableAmountLabel.locator('#form_account_amount').textContent();
+        const amountToInput = (Number(availableAmount?.replace(/,/g, '.')) + 0.01).toFixed(2).toString();
+        await onGenerateTransferPage.amountField.getByRole('textbox').fill(amountToInput);
+        await onGenerateTransferPage.amountField.getByRole('textbox').click();
+        await onGenerateTransferPage.availableAmountLabel.click({force:true});
+        await onGenerateTransferPage.checkFieldErrorMessage(onGenerateTransferPage.amountField, `${errorMessages.generateTransferAmountTooHigh} ${availableAmount.replace(/,/g, '.')}`, 'has-error');
+    })
+
+    test('Amount can be equal to available amount', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+        const availableAmount: any = await onGenerateTransferPage.availableAmountLabel.locator('#form_account_amount').textContent();
+        const amountToInput = Number(availableAmount?.replace(/,/g, '.')).toFixed(2).toString();
+        await onGenerateTransferPage.amountField.getByRole('textbox').fill(amountToInput);
+        await onGenerateTransferPage.amountField.getByRole('textbox').click()
+        await onGenerateTransferPage.availableAmountLabel.click({force: true});
+        await onGenerateTransferPage.checkFieldHighlight(onGenerateTransferPage.amountField, 'is-valid');
+
+    })
+
     test('Title field is required', async({navigateToTransferGenerationPage, onGenerateTransferPage}) => {
         onGenerateTransferPage.titleField.getByRole('textbox').clear();
         await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.titleField, 'Test Title', 'pole wymagane');
@@ -585,5 +604,6 @@ test.describe('Generu przelew page', () => {
         await onGenerateTransferPage.addressSection.click();
         await onGenerateTransferPage.isInputFiedlRequred(false, onGenerateTransferPage.addressLine1, 'Address Line 3', '');
     })
+
 })
 
