@@ -4,4 +4,5 @@ export class ErrorMessages {
     doladowanieTelefonuAmountTooHighErrorMessag150 = 'kwota musi być mniejsza lub równa 150'
     generateTransferAccountNumberTooShort = 'konto musi mieć 26 znaków'
     generateTransferAmountTooHigh = 'kwota musi być mniejsza od'
+    fieldIsRequired = 'pole wymagane'
 }

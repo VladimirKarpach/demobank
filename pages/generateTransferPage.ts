@@ -13,6 +13,14 @@ export class GenerateTransferPage {
     addressLine2: Locator
     addressLine3: Locator
     addressSection: Locator
+    executionDateField: Locator
+    transferTypeSection: Locator
+    commonTransferCheckbox: Locator
+    expressTransferCheckbox: Locator
+    datepicker: Locator
+    datepickerAvailableDates: Locator
+    transferTypeLabel:Locator
+    amountLabel: Locator
 
     constructor (page: Page) {
         this.page = page
@@ -20,13 +28,20 @@ export class GenerateTransferPage {
         this.receiverFiled = page.locator('.form-row', {hasText: 'nazwa odbiorcy'})
         this.availableAmountLabel = this.accountField.locator('.form-info')
         this.toAcoountField = page.locator('.form-row', {hasText: 'na rachunek'})
-        this.amountField = page.locator('.form-row', {hasText: 'kwota'})
+        this.amountField = page.locator('.form-row', {hasText: 'kwota'}).first()
         this.titleField = page.locator('.form-row', {hasText: 'tytu'})
         this.addressLine1 = page.locator('#form_address').locator('.form-row').nth(0)
         this.addressLine2 = page.locator('#form_address').locator('.form-row').nth(1)
         this.addressLine3 = page.locator('#form_address').locator('.form-row').nth(2)
         this.addressSection = page.locator('.form-row', {hasText: 'adres (opcjonalnie)'}).locator('.showhide').first()
-
+        this.executionDateField = page.locator('.form-row', {hasText: 'data'})
+        this.transferTypeSection = page.locator('.form-row', {hasText: 'prowizji'})
+        this.commonTransferCheckbox = this.transferTypeSection.locator('label', {hasText: 'zwyk'}).locator('.radio')
+        this.expressTransferCheckbox = this.transferTypeSection.locator('label', {hasText: 'ekspresowy'}).locator('.radio')
+        this.datepicker = page.locator('#ui-datepicker-div')
+        this.datepickerAvailableDates = this.datepicker.locator('[data-handler="selectDay"]')
+        this.transferTypeLabel = this.transferTypeSection.locator('.form-info')
+        this.amountLabel = this.amountField.locator('.form-info')
     }
 
     /**
