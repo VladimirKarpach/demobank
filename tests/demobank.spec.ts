@@ -522,7 +522,7 @@ test.describe('Mój pulpit page', () => {
     })
 })
 
-test.describe('Generu przelew page', () => {
+test.describe('Generuj przelew page', () => {
 
     test('Account field is required', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
         await page.waitForEvent('load');
