@@ -24,6 +24,12 @@ export class MojPuplitPage {
     kontoNaZyciePosiadaczField: Locator
     kontoNaZycieMoreButton: Locator
     lastOperationsBox: Locator
+    quickTransferToField: Locator
+    quickTransferAmountField: Locator
+    quickTransferTitleField: Locator
+    quickTransferSubmitButton: Locator
+    quickTransferTooltip: Locator
+    quickTransferDetailsDialog: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -49,6 +55,12 @@ export class MojPuplitPage {
         this.kontoNaZyciePosiadaczField = this.kontoNaZycieBox.locator('.form-row', {hasText: 'posiadacz'})
         this.kontoNaZycieMoreButton = this.kontoNaZycieBox.locator('.btn')
         this.lastOperationsBox = page.locator('.box-white', {hasText: 'ostatnie operacje'})
+        this.quickTransferSubmitButton = page.getByRole('button')
+        this.quickTransferToField = page.locator('.form-row', {hasText: 'do'})
+        this.quickTransferAmountField = page.locator('.form-row', {hasText: 'kwota'})
+        this.quickTransferTitleField = page.locator('.form-row', {hasText: 'tytu'})
+        this.quickTransferTooltip = page.locator('.tooltip')
+        this.quickTransferDetailsDialog = page.locator('.ui-dialog')
     }
 
     async checkTooltipText(fieldName, tooltipText){
@@ -88,7 +100,7 @@ export class MojPuplitPage {
      * @param transferAmount - data from the Amount firld
      * @param transferTitle - data from the Title field
      */
-    async szybkiPrzelewCheckDialodContent (receiver, transferAmount: string, transferTitle: string) {
+    async szybkiPrzelewCheckDialogContent (receiver, transferAmount: string, transferTitle: string) {
         await expect(this.szybkiPrzelewTransferCompletedDialogCocntent).toContainText(`Przelew wykonany!Odbiorca:  ${receiver}Kwota: ${transferAmount},00PLN Nazwa: ${transferTitle}`
         );
     }
@@ -147,6 +159,13 @@ export class MojPuplitPage {
     async doladowanieTelefonuProvideDataToAmountField (amount) {
         await this.doladowanieTelefonuAmountField.getByRole('textbox').fill(amount);
         await this.doladowanieTelefonuSubmitButton.click();
+    }
+
+    async quickTransferSendTransfer (fieldLocator, dropdownOprion, transferAmount, transferTitle) {
+        await this.selectDropdownOption(fieldLocator, dropdownOprion)
+        await this.quickTransferAmountField.getByRole('textbox').fill(transferAmount);
+        await this.quickTransferTitleField.getByRole('textbox').fill(transferTitle);
+        await this.quickTransferSubmitButton.click();
     }
 
 }

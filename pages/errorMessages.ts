@@ -5,4 +5,5 @@ export class ErrorMessages {
     generateTransferAccountNumberTooShort = 'konto musi mieć 26 znaków'
     generateTransferAmountTooHigh = 'kwota musi być mniejsza od'
     fieldIsRequired = 'pole wymagane'
+    mojPulpitQuickTransferAmounttooHigh = 'kwota musi być mniejsza od 1000000'
 }

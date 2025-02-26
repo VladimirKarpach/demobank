@@ -234,7 +234,7 @@ test.describe('Mój pulpit page', () => {
 
             // check tranfer details
             await expect(onMojPulpitPage.szybkiPrzelewTransferCompletedDialog.locator('.ui-widget-header')).toContainText('Przelew wykonany');
-            await onMojPulpitPage.szybkiPrzelewCheckDialodContent(transferReceiver, transferAmount, transferTitle);
+            await onMojPulpitPage.szybkiPrzelewCheckDialogContent(transferReceiver, transferAmount, transferTitle);
         })
 
         test('Transfer details window can be closed', async({page, signIn, onMojPulpitPage}) => {
@@ -302,6 +302,7 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Tooltip apears if 500, 502, 503 numbers selected', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForEvent('load')
             for (const phoneNumber of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
                 await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, phoneNumber);
                 expect(await onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip.isVisible()).toBeTruthy();
@@ -309,6 +310,7 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Check tooltip', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForEvent('load');
             for (const phoneNumber of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
                 await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, phoneNumber);
                 await onMojPulpitPage.doladowanieTelefonuTopUpInfoTooltip.hover();
@@ -388,6 +390,7 @@ test.describe('Mój pulpit page', () => {
         })
 
         test('Check options at the Amout dropdown', async({page, signIn, onMojPulpitPage}) => {
+            await page.waitForEvent('load');
             await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.doladowanieTelefonuToField, undefined, dropdownOptions.doladoawaniaTelephoneNumbersWithDefaultTopUpValue[0]);
             await onMojPulpitPage.doladowanieTelefonuAmountField.click();
             await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.doladowanieTelefonuAmountField, dropdownOptions.doladoawaniaAmoutDropdownValues)
@@ -564,6 +567,7 @@ test.describe('Generuj przelew page', () => {
     test('Amount can\'t be greater that available amout', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
         const availableAmount: any = await onGenerateTransferPage.availableAmountLabel.locator('#form_account_amount').textContent();
         const amountToInput = (Number(availableAmount?.replace(/,/g, '.')) + 0.01).toFixed(2).toString();
+        await page.waitForEvent('load');
         await onGenerateTransferPage.amountField.getByRole('textbox').fill(amountToInput);
         await onGenerateTransferPage.amountField.getByRole('textbox').click();
         await onGenerateTransferPage.availableAmountLabel.click({force:true});
@@ -573,9 +577,11 @@ test.describe('Generuj przelew page', () => {
     test('Amount can be equal to available amount', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
         const availableAmount: any = await onGenerateTransferPage.availableAmountLabel.locator('#form_account_amount').textContent();
         const amountToInput = Number(availableAmount?.replace(/,/g, '.')).toFixed(2).toString();
+        await page.waitForEvent('load');
         await onGenerateTransferPage.amountField.getByRole('textbox').fill(amountToInput);
         await onGenerateTransferPage.amountField.getByRole('textbox').click()
         await onGenerateTransferPage.availableAmountLabel.click({force: true});
+        await page.waitForTimeout(200);
         await onGenerateTransferPage.checkFieldHighlight(onGenerateTransferPage.amountField, 'is-valid');
     })
 
@@ -613,7 +619,7 @@ test.describe('Generuj przelew page', () => {
     })
 
     test('Address Line 3 is oprional', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
-        page.waitForEvent('load');
+        await page.waitForEvent('load');
         await onGenerateTransferPage.addressSection.click();
         await onGenerateTransferPage.isInputFiedlRequred(false, onGenerateTransferPage.addressLine1, 'Address Line 3', '');
     })
@@ -652,5 +658,74 @@ test.describe('Generuj przelew page', () => {
         expect(await onGenerateTransferPage.executionDateField.locator('input').isDisabled()).toBeFalsy();
     })
 
+})
+
+test.describe('Moj pulpit -> Szybki przelew page', () => {
+    test('To field is required', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.quickTransferSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.quickTransferToField, errorMessages.fieldIsRequired, 'has-error');
+    })
+
+    test('Amount field is required', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.quickTransferSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.quickTransferAmountField, errorMessages.fieldIsRequired, 'has-error');
+    })
+
+    test('Amount can\'t b greater than 1000000', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.quickTransferAmountField.getByRole('textbox').fill('1000000.01')
+        await onMojPulpitPage.quickTransferSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.quickTransferAmountField, errorMessages.mojPulpitQuickTransferAmounttooHigh, 'has-error');
+        await onMojPulpitPage.quickTransferAmountField.getByRole('textbox').clear();
+        await onMojPulpitPage.quickTransferAmountField.getByRole('textbox').fill('1000000.00');
+        await onMojPulpitPage.quickTransferSubmitButton.click();
+        await onMojPulpitPage.checkFieldHighlight(onMojPulpitPage.quickTransferAmountField, 'is-valid');
+
+    })
+
+    test('Title field is required', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.quickTransferSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.quickTransferTitleField, errorMessages.fieldIsRequired, 'has-error');
+    })
+
+    test('Check options at the To field dropdown', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.quickTransferToField, dropdownOptions.quickTransferDropdownOptions)
+    })
+
+    test('Check tooltip', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.quickTransferTooltip.hover();
+        await onMojPulpitPage.checkTooltipText(onMojPulpitPage.quickTransferTooltip, tooltips.szybkiPrzelewTooltipText);
+    })
+
+    test('Make a transfer', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load')
+        await onMojPulpitPage.quickTransferSendTransfer(onMojPulpitPage.quickTransferToField, 1, '1000', 'Test Transfer');
+        expect(await onMojPulpitPage.quickTransferDetailsDialog.isVisible()).toBeTruthy();
+    })
+
+    test('Check transfer details', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        const toOption = Math.floor(Math.random() * 2) + 1;
+        const amount = Math.floor(Math.random() * 10000).toString() + ',00';
+        const title = 'Transfer title ' + Math.floor(Math.random() * 100).toString();
+        const toPerson = await onMojPulpitPage.quickTransferToField.locator('option').nth(toOption).textContent()
+        await onMojPulpitPage.quickTransferSendTransfer(onMojPulpitPage.quickTransferToField, toOption, amount, title);
+
+        const dialogBodyText = await onMojPulpitPage.quickTransferDetailsDialog.locator('p').textContent();
+        expect(dialogBodyText).toEqual(` Przelew wykonany!Odbiorca: ${toPerson}Kwota: ${amount}PLN Nazwa: ${title}`)
+
+
+    })
+
+    test('Transfer ditails pop-up can be closed', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await onMojPulpitPage.quickTransferSendTransfer(onMojPulpitPage.quickTransferToField, 1, '1000', 'Test Transfer');
+        expect(await onMojPulpitPage.quickTransferDetailsDialog.isVisible()).toBeTruthy();
+        await onMojPulpitPage.quickTransferDetailsDialog.getByRole('button').click();
+        expect(await onMojPulpitPage.quickTransferDetailsDialog.isVisible()).toBeFalsy();
+    })
 })
 

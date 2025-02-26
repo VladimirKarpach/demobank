@@ -8,10 +8,12 @@ export type Fixtures = {
     setup: string
     signIn: string
     navigateToTransferGenerationPage: string
+    navigateToQuickTransfePage: string
     onLoginPage: LoginPage
     onMojPulpitPage: MojPuplitPage
     navigateTo: Navigation
     onGenerateTransferPage: GenerateTransferPage
+
 }
 
 export const test = base.extend<Fixtures>({
@@ -49,6 +51,11 @@ export const test = base.extend<Fixtures>({
 
     navigateToTransferGenerationPage: async({page, signIn, navigateTo}, use) => {
         await navigateTo.generujPrzelewPage();
+        await use('');
+    },
+
+    navigateToQuickTransfePage: async({page, signIn, navigateTo}, use) => {
+        await navigateTo.mojPulpitSzybkiPzelewPage();
         await use('');
     }
 })
