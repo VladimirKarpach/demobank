@@ -9,6 +9,7 @@ export type Fixtures = {
     signIn: string
     navigateToTransferGenerationPage: string
     navigateToQuickTransfePage: string
+    navigateToPhoneTopUpPage: string
     onLoginPage: LoginPage
     onMojPulpitPage: MojPuplitPage
     navigateTo: Navigation
@@ -56,6 +57,11 @@ export const test = base.extend<Fixtures>({
 
     navigateToQuickTransfePage: async({page, signIn, navigateTo}, use) => {
         await navigateTo.mojPulpitSzybkiPzelewPage();
+        await use('');
+    },
+
+    navigateToPhoneTopUpPage: async({page, signIn, navigateTo}, use) => {
+        await navigateTo.mojPulpitDoladowanieTelefonuPage();
         await use('');
     }
 })

@@ -376,7 +376,7 @@ test.describe('Mój pulpit page', () => {
                      await onMojPulpitPage.checkFieldHighlight(onMojPulpitPage.doladowanieTelefonuAmountField, 'is-valid');
                      await onMojPulpitPage.doladowanieTelefonuAmountField.getByRole('textbox').clear();
  
-                     //check highect plust 1
+                     //check highest plus 1
                      await onMojPulpitPage.doladowanieTelefonuProvideDataToAmountField('151');
                      await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.doladowanieTelefonuAmountField, errorMessages.doladowanieTelefonuAmountTooHighErrorMessag150, 'has-error');
                      await onMojPulpitPage.doladowanieTelefonuAmountField.getByRole('textbox').clear();
@@ -539,6 +539,7 @@ test.describe('Generuj przelew page', () => {
     })
 
     test('To Account field is reqired', async({page, navigateToTransferGenerationPage, onGenerateTransferPage}) => {
+
         const validAccountNumber = Math.round(Math.random() * 1000000000000000000000).toString()
         await onGenerateTransferPage.isInputFiedlRequred(true, onGenerateTransferPage.toAcoountField, validAccountNumber, errorMessages.fieldIsRequired);
 
@@ -712,7 +713,9 @@ test.describe('Moj pulpit -> Szybki przelew page', () => {
         const toOption = Math.floor(Math.random() * 2) + 1;
         const amount = Math.floor(Math.random() * 10000).toString() + ',00';
         const title = 'Transfer title ' + Math.floor(Math.random() * 100).toString();
-        const toPerson = await onMojPulpitPage.quickTransferToField.locator('option').nth(toOption).textContent()
+        const toPerson = await onMojPulpitPage.quickTransferToField.locator('option').nth(toOption).textContent();
+
+        await page.waitForEvent('load')
         await onMojPulpitPage.quickTransferSendTransfer(onMojPulpitPage.quickTransferToField, toOption, amount, title);
 
         const dialogBodyText = await onMojPulpitPage.quickTransferDetailsDialog.locator('p').textContent();
@@ -722,6 +725,7 @@ test.describe('Moj pulpit -> Szybki przelew page', () => {
     })
 
     test('Transfer ditails pop-up can be closed', async({page, navigateToQuickTransfePage, onMojPulpitPage}) => {
+        await page.waitForEvent('load')
         await onMojPulpitPage.quickTransferSendTransfer(onMojPulpitPage.quickTransferToField, 1, '1000', 'Test Transfer');
         expect(await onMojPulpitPage.quickTransferDetailsDialog.isVisible()).toBeTruthy();
         await onMojPulpitPage.quickTransferDetailsDialog.getByRole('button').click();
@@ -729,3 +733,100 @@ test.describe('Moj pulpit -> Szybki przelew page', () => {
     })
 })
 
+test.describe('Moj Pulpit -> Phone top-up page', () => {
+    test('To field is required', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.phoneTopUpSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.phoneTopUpAmountField, errorMessages.fieldIsRequired, 'has-error');
+    })
+
+    test('Amount field is required', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.phoneTopUpSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.phoneTopUpAmountField, errorMessages.fieldIsRequired, 'has-error');
+    })
+
+    test('Boundary for the Amount field', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await page.waitForEvent('load')
+        for(let option of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
+            //check lower value
+            
+            await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.phoneTopUpToFiled, undefined, option);
+            await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').fill('4');
+            await onMojPulpitPage.phoneTopUpSubmitButton.click();
+            await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.phoneTopUpAmountField, errorMessages.doladowanieTelefonuAmountTooLowErrorMessage, 'has-error');
+            await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').clear();
+
+            await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').fill('5');
+            await onMojPulpitPage.phoneTopUpSubmitButton.click();
+            await onMojPulpitPage.checkFieldHighlight(onMojPulpitPage.phoneTopUpAmountField, 'is-valid');
+            await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').clear();
+
+            //check higher value
+            if(option !== '503 xxx xxx'){
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').fill('151');
+                await onMojPulpitPage.phoneTopUpSubmitButton.click();
+                await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.phoneTopUpAmountField, errorMessages.doladowanieTelefonuAmountTooHighErrorMessag150, 'has-error');
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').clear();
+
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').fill('150');
+                await onMojPulpitPage.phoneTopUpSubmitButton.click();
+                await onMojPulpitPage.checkFieldHighlight(onMojPulpitPage.phoneTopUpAmountField, 'is-valid');
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').clear();
+            } else {
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').fill('501');
+                await onMojPulpitPage.phoneTopUpSubmitButton.click();
+                await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.phoneTopUpAmountField, errorMessages.doladowanieTelefonuAmountTooHighErrorMessag500, 'has-error');
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').clear();
+
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').fill('500');
+                await onMojPulpitPage.phoneTopUpSubmitButton.click();
+                await onMojPulpitPage.checkFieldHighlight(onMojPulpitPage.phoneTopUpAmountField, 'is-valid');
+                await onMojPulpitPage.phoneTopUpAmountField.getByRole('textbox').clear();
+            }
+        }
+    })
+
+    test('Verification is required', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await page.waitForEvent('load');
+        await onMojPulpitPage.phoneTopUpSubmitButton.click();
+        await onMojPulpitPage.checkFieldErrorMessage(onMojPulpitPage.phoneTopUpVerificationField, errorMessages.fieldIsRequired);
+    })
+
+    test('To field: check dropdown options', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.phoneTopUpToFiled, dropdownOptions.doladoawaniaDropboxOptions)
+    })
+
+    test('Tooltip appears near the Amount field if 500, 502, 503 options are selected', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        for(let option of dropdownOptions.doladoawaniaTelephoneNumbersWithoutDefaultTopUpValue){
+            await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.phoneTopUpToFiled, undefined, option);
+            expect(await onMojPulpitPage.phoneTopUpTooltip.isVisible()).toBeTruthy();
+        }
+    })
+
+    test('Tooltip doesn\'t appear near the Amount field if 504 option is selected', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.phoneTopUpToFiled, undefined, dropdownOptions.doladoawaniaTelephoneNumbersWithDefaultTopUpValue[0]);
+        expect(await onMojPulpitPage.phoneTopUpTooltip.isVisible()).toBeFalsy();
+    })
+
+    test('The 5PLN option selected by default at the Amount field id 504 number is seleced', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+
+    })
+
+    test('Amount field: check dropdown options', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.phoneTopUpToFiled, undefined, dropdownOptions.doladoawaniaTelephoneNumbersWithDefaultTopUpValue[0]);
+        await onMojPulpitPage.checkDropdownOptions(onMojPulpitPage.phoneTopUpAmountField, dropdownOptions.doladoawaniaAmoutDropdownValues);
+    })
+
+    test('Make top-up', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+
+    })
+
+    test('Check top-up details', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+
+    })
+
+    test('Details dialog can be closed', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+
+    })
+})

@@ -30,6 +30,12 @@ export class MojPuplitPage {
     quickTransferSubmitButton: Locator
     quickTransferTooltip: Locator
     quickTransferDetailsDialog: Locator
+    phoneTopUpToFiled: Locator
+    phoneTopUpAmountField: Locator
+    phoneTopUpVerificationField: Locator
+    phoneTopUpSubmitButton:Locator
+    phoneTopUpDetaildDialog: Locator
+    phoneTopUpTooltip: Locator
 
     constructor(page: Page) {
         this.page = page
@@ -61,6 +67,12 @@ export class MojPuplitPage {
         this.quickTransferTitleField = page.locator('.form-row', {hasText: 'tytu'})
         this.quickTransferTooltip = page.locator('.tooltip')
         this.quickTransferDetailsDialog = page.locator('.ui-dialog')
+        this.phoneTopUpToFiled = page.locator('.form-row', {hasText: 'do'}).first()
+        this.phoneTopUpAmountField = page.locator('.form-row', {hasText: 'kwota'})
+        this.phoneTopUpVerificationField = page.locator('.form-row', {hasText: 'warunki'})
+        this. phoneTopUpSubmitButton = page.getByRole('button')
+        this.phoneTopUpDetaildDialog = page.locator('.ui-dialog')
+        this.phoneTopUpTooltip = page.locator('.tooltip')
     }
 
     async checkTooltipText(fieldName, tooltipText){
