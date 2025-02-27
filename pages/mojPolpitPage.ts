@@ -164,7 +164,7 @@ export class MojPuplitPage {
     async doladowanieTelefonuSendTransfer (fieldLocator, dropdownOption, transferAmount) {
         await this.selectDropdownOption(fieldLocator, dropdownOption)
         await this.doladowanieTelefonuAmountField.getByRole('textbox').fill(transferAmount);
-        await this.doladowanieTelefonuCheckboxCheck()
+        await this.doladowanieTelefonuCheckboxCheck();
         await this.doladowanieTelefonuSubmitButton.click();
     }
 
@@ -178,6 +178,19 @@ export class MojPuplitPage {
         await this.quickTransferAmountField.getByRole('textbox').fill(transferAmount);
         await this.quickTransferTitleField.getByRole('textbox').fill(transferTitle);
         await this.quickTransferSubmitButton.click();
+    }
+
+    /**
+     * This method send transfer
+     * @param fieldLocator - locator for the dropdown
+     * @param dropdownOption - dropdown select index
+     * @param transferAmount - provide amount of transfer
+     */
+    async phoneTopUpSendTransfer (fieldLocator, dropdownOption, transferAmount) {
+        await this.selectDropdownOption(fieldLocator, dropdownOption)
+        await this.phoneTopUpAmountField.getByRole('textbox').fill(transferAmount);
+        await this.phoneTopUpVerificationField.getByRole('checkbox').check();
+        await this.phoneTopUpSubmitButton.click();
     }
 
 }

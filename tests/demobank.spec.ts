@@ -810,7 +810,9 @@ test.describe('Moj Pulpit -> Phone top-up page', () => {
     })
 
     test('The 5PLN option selected by default at the Amount field id 504 number is seleced', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
-
+        await page.waitForEvent('load');
+        await onMojPulpitPage.selectDropdownOption(onMojPulpitPage.quickTransferToField, undefined, dropdownOptions.doladoawaniaTelephoneNumbersWithDefaultTopUpValue[0]);
+        expect(await onMojPulpitPage.quickTransferToField.locator('#uniform-widget_1_topup_amount span').textContent()).toEqual('5');
     })
 
     test('Amount field: check dropdown options', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
@@ -819,14 +821,34 @@ test.describe('Moj Pulpit -> Phone top-up page', () => {
     })
 
     test('Make top-up', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        const toOption = Math.floor(Math.random() * 3) + 1;
+        const amount = Math.floor(Math.random() * 100).toString() + ',00';
 
+        await onMojPulpitPage.phoneTopUpSendTransfer(onMojPulpitPage.phoneTopUpToFiled, toOption, amount);
+        expect(await onMojPulpitPage.phoneTopUpDetaildDialog.isVisible()).toBeTruthy()
     })
 
     test('Check top-up details', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        const toOption = Math.floor(Math.random() * 3) + 1;
+        const amount = Math.floor(Math.random() * 100).toString() + ',00';
+        const selectedOption = await onMojPulpitPage.phoneTopUpToFiled.locator('option').nth(toOption).textContent()
+
+        await onMojPulpitPage.phoneTopUpSendTransfer(onMojPulpitPage.phoneTopUpToFiled, toOption, amount);
+        
+        const dialogContentBodyText = await onMojPulpitPage.phoneTopUpDetaildDialog.locator('p').textContent()
+        expect(dialogContentBodyText).toEqual(` Doładowanie wykonane!Kwota: ${amount}PLN Numer: ${selectedOption}`)
+
 
     })
 
     test('Details dialog can be closed', async({page, navigateToPhoneTopUpPage, onMojPulpitPage}) => {
+        const toOption = Math.floor(Math.random() * 3) + 1;
+        const amount = Math.floor(Math.random() * 100).toString() + ',00';
 
+        await onMojPulpitPage.phoneTopUpSendTransfer(onMojPulpitPage.phoneTopUpToFiled, toOption, amount);
+        expect(await onMojPulpitPage.phoneTopUpDetaildDialog.isVisible()).toBeTruthy();
+
+        await onMojPulpitPage.phoneTopUpDetaildDialog.getByRole('button').click();
+        expect(await onMojPulpitPage.phoneTopUpDetaildDialog.isVisible()).toBeFalsy();
     })
 })
